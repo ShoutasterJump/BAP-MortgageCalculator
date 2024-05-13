@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <title>Mortgage Calculator</title>
+</head>
+<body>
+
+<!-- Header Section -->
+<div class="w3-bar">
+  <!-- Right Menu -->
+  <button class="w3-bar-item w3-button w3-light-grey">Add a new mortgage</button>
+  <button class="w3-bar-item w3-button w3-light-grey">Update an existing mortgage</button>
+  <button class="w3-bar-item w3-button w3-light-grey">View History</button>
+  <button class="w3-bar-item w3-button w3-light-grey">Logout</button>
+  <button class="w3-bar-item w3-button w3-light-grey">User Profile</button>
+  </div>
+</div>
+<div class="w3-bar">
+    <!-- Left Menu -->
+  <div class="w3-bar-item">
+    <a href="#">Combined</a>
+    <a href="#">Dynamic Item 1</a>
+    <a href="#">Dynamic Item 2</a>
+  </div>
+</div>
+
+<!-- Main Content Sections -->
+<div class="w3-container w3-row">
+
+  <!-- Top Left Section -->
+  <div class="w3-col s6">
+    <div class="w3-cell w3-center">
+      <h2>Analysis Summary</h2>
+    </div>
+    <div class="w3-cell w3-center">
+      <!-- Date Selection Box -->
+      <input type="date" class="w3-input w3-border">
+    </div>
+    <div class="w3-cell w3-center">
+      <!-- Toggle Switch -->
+      <div class="w3-row">
+        <p class="w3-cell w3-center">Fortnightly</p>
+        <label class="switch w3-cell w3-center" height=50px>
+          <input type="checkbox">
+          <span class="slider round"></span>
+        </label>
+        <p class="w3-cell w3-center">Monthly</p>
+      </div>
+    </div>
+    <div class="w3-row">
+      <div>
+        <!-- Fixed Table -->
+        <table class="w3-table w3-striped w3-hoverable">
+          <tr>
+            <th>Estimated Repayments:</th>
+            <th></th>
+            <th>Full Term To Amortize:</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Interest:</th>
+            <th></th>
+            <th>Estimated Reduced Term To Amortize:</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Principal:</th>
+            <th></th>
+            <th>Interest Over Full Term:</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Extra:</th>
+            <th></th>
+            <th>Total Principal + Interest:</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Repayment:</th>
+            <th></th>
+            <th>Interest Over Reduced Term:</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Payments Over Full Term:</th>
+            <th></th>
+            <th>Interest Saved Over Reduced Term:</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Payments Over Reduced Term</th>
+            <th></th>
+            <th>Total Principal + Interest Over Reduced Term:</th>
+            <th></th>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Right Section -->
+  <div class="w3-col s6">
+    <!-- Placeholder for Graph -->
+    <div id="graphPlaceholder" class="w3-card-4"></div>
+  </div>
+</div>
+
+<!-- Bottom Section -->
+<div class="w3-container">
+  <h2>Bottom Section</h2>
+  <!-- Dynamically Rendered Table -->
+  <table class="w3-table-all">
+    <!-- Table content goes here -->
+  </table>
+  <!-- Date Selection Box for Bottom Table -->
+  <input type="date" class="w3-input w3-border">
+  <!-- Toggle Switch for Bottom Table -->
+  <label class="w3-switch">
+    <input type="checkbox">
+    <span class="w3-slider"></span>
+  </label>
+</div>
+
+</body>
+</html>
