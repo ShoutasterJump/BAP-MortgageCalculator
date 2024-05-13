@@ -1,0 +1,8 @@
+vendor
+.vscode
+debug*
+/data/jobs/*
+/tmp
+*.exe
+/__pycahce__
+.idea
