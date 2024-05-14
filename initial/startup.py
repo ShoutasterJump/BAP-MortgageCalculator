@@ -1,5 +1,4 @@
 from initial.authkey import load_key
-from cryptography.fernet import Fernet
 import psycopg2
 from psycopg2 import sql
 
