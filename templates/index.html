@@ -3,126 +3,142 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <title>Mortgage Calculator</title>
 </head>
 <body>
 
-<!-- Header Section -->
-<div class="w3-bar">
-  <!-- Right Menu -->
-  <button class="w3-bar-item w3-button w3-light-grey">Add a new mortgage</button>
-  <button class="w3-bar-item w3-button w3-light-grey">Update an existing mortgage</button>
-  <button class="w3-bar-item w3-button w3-light-grey">View History</button>
-  <button class="w3-bar-item w3-button w3-light-grey">Logout</button>
-  <button class="w3-bar-item w3-button w3-light-grey">User Profile</button>
+<!-- Header Section --> <!--Whole section needs css styling for different widow sizes-->
+<div class="w3-right">
+  <div class="w3-bar">
+    <!-- Right Menu -->
+    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">Add a new mortgage</button>
+    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">Update an existing mortgage</button>
+    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">View History</button>
+    <button id="logoutButton" class="w3-bar-item w3-button w3-light-grey" style="font-size:20px" onclick="logout()">Logout</button>
+    <button class="w3-bar-item w3-button w3-light-grey"><i class="material-icons" style="font-size:24px">person</i></button>
   </div>
 </div>
-<div class="w3-bar">
-    <!-- Left Menu -->
-  <div class="w3-bar-item">
-    <a href="#">Combined</a>
-    <a href="#">Dynamic Item 1</a>
-    <a href="#">Dynamic Item 2</a>
-  </div>
+<div class="w3-bar w3-left">
+  <!-- Left Menu -->
+  <button href="#" class="w3-bar-item w3-button w3-border">Combined</button>
+  <button href="#" class="w3-bar-item w3-button w3-border">Dynamic Item 1</button>
+  <button href="#" class="w3-bar-item w3-button w3-border">Dynamic Item 2</button>
 </div>
 
 <!-- Main Content Sections -->
-<div class="w3-container w3-row">
+<div class="w3-row">
+  <!-- Left Section -->
+  <div class="w3-col s6 w3-margin-top">
+    <div class="w3-container"> <!--style="padding-right: 0"-->
+      <div class="w3-cell-row">
+        <div class="w3-container w3-cell w3-center" style="padding: 0">
+          <h2>Analysis Summary</h2>
+        </div>
+        <div class="w3-container w3-cell w3-center w3-cell-bottom">
+          <div class="w3-flex">
+            <p style="display: inline-block; margin-right: 10px;">From:</p>
+            <input type="date" id="dateInput" class="w3-input w3-border" style="display: inline-block">
+          </div>
+        </div>
+        <div class="w3-container w3-cell w3-center w3-toggle-switch w3-cell-bottom">
+          <label class="switch">
+            <p>Fortnightly</p>
+            <input type="checkbox">
+            <span class="slider round"></span>
+            <p>Monthly</p>
+          </label>
+        </div>
+      </div>
+    </div>
 
-  <!-- Top Left Section -->
-  <div class="w3-col s6">
-    <div class="w3-cell w3-center">
-      <h2>Analysis Summary</h2>
-    </div>
-    <div class="w3-cell w3-center">
-      <!-- Date Selection Box -->
-      <input type="date" class="w3-input w3-border">
-    </div>
-    <div class="w3-cell w3-center">
-      <!-- Toggle Switch -->
-      <div class="w3-row">
-        <p class="w3-cell w3-center">Fortnightly</p>
-        <label class="switch w3-cell w3-center" height=50px>
-          <input type="checkbox">
-          <span class="slider round"></span>
-        </label>
-        <p class="w3-cell w3-center">Monthly</p>
-      </div>
-    </div>
-    <div class="w3-row">
-      <div>
-        <!-- Fixed Table -->
-        <table class="w3-table w3-striped w3-hoverable">
-          <tr>
-            <th>Estimated Repayments:</th>
-            <th></th>
-            <th>Full Term To Amortize:</th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>Interest:</th>
-            <th></th>
-            <th>Estimated Reduced Term To Amortize:</th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>Principal:</th>
-            <th></th>
-            <th>Interest Over Full Term:</th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>Extra:</th>
-            <th></th>
-            <th>Total Principal + Interest:</th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>Repayment:</th>
-            <th></th>
-            <th>Interest Over Reduced Term:</th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>Payments Over Full Term:</th>
-            <th></th>
-            <th>Interest Saved Over Reduced Term:</th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>Payments Over Reduced Term</th>
-            <th></th>
-            <th>Total Principal + Interest Over Reduced Term:</th>
-            <th></th>
-          </tr>
-        </table>
-      </div>
+    <!-- Fixed Table -->
+    <div class="w3-container">
+      <table class="w3-table w3-border w3-bordered w3-hoverable">
+        <tr>
+          <th class="w3-blue">Estimated Repayments:</th>
+          <td></td>
+          <th class="w3-blue">Full Term To Amortize:</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th class="w3-blue">Interest:</th>
+          <td></td>
+          <th class="w3-blue">Estimated Reduced Term To Amortize:</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th class="w3-blue">Principal:</th>
+          <td></td>
+          <th class="w3-blue">Interest Over Full Term:</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th class="w3-blue">Extra:</th>
+          <td></td>
+          <th class="w3-blue">Total Principal + Interest:</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th class="w3-blue">Repayment:</th>
+          <td></td>
+          <th class="w3-blue">Interest Over Reduced Term:</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th class="w3-blue">Payments Over Full Term:</th>
+          <td></td>
+          <th class="w3-blue">Interest Saved Over Reduced Term:</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th class="w3-blue">Payments Over Reduced Term:</th>
+          <td></td>
+          <th class="w3-blue">Total Principal + Interest Over Reduced Term:</th>
+          <td></td>
+        </tr>
+      </table>
     </div>
   </div>
 
   <!-- Top Right Section -->
-  <div class="w3-col s6">
-    <!-- Placeholder for Graph -->
-    <div id="graphPlaceholder" class="w3-card-4"></div>
+  <div class="w3-col s6" style="display: flex; height: 100%">
+    <div class="w3-container" style="height: 100%; padding-left: 0">
+      <div class="w3-cell-row" style="height: 100%">
+        <div class="w3-cell w3-center" style="height: 100%">
+          <!-- Placeholder for Graph -->
+          <div id="graphPlaceholder" style="height: 100%"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- Bottom Section -->
 <div class="w3-container">
-  <h2>Bottom Section</h2>
-  <!-- Dynamically Rendered Table -->
-  <table class="w3-table-all">
-    <!-- Table content goes here -->
+  <h2>Amortization Table</h2>
+  <table class="w3-table w3-border w3-bordered w3-hoverable">
+    <tr>
+      <th class="w3-blue">Date</th>
+      <th class="w3-blue">Balance</th>
+      <th class="w3-blue">Interest</th>
+      <th class="w3-blue">Principal</th>
+      <th class="w3-blue">Extra</th>
+      <th class="w3-blue">Payment</th>
+      <th class="w3-blue">Amount of Principal</th>
+      <th class="w3-blue">New Balance</th>
+      <th class="w3-blue">Acummulated Interest</th>
+      <th class="w3-blue">Accumulated Principal Payments</th>
+    </tr>
   </table>
-  <!-- Date Selection Box for Bottom Table -->
-  <input type="date" class="w3-input w3-border">
-  <!-- Toggle Switch for Bottom Table -->
-  <label class="w3-switch">
-    <input type="checkbox">
-    <span class="w3-slider"></span>
-  </label>
 </div>
+
+<script>
+  function logout() {
+      window.location.href = '/logout';  // Redirect to the logout endpoint
+  }
+</script>
 
 </body>
 </html>

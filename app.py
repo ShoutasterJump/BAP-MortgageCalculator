@@ -53,4 +53,8 @@ def register():
             return render_template('register.html', message='Registration failed')
     else:
         error = 'An error has occured - please try again'
-        return render_template('register.html', error=error)  
+        return render_template('register.html', error=error)
+
+@app.route('/logout')
+def logout():
+    return render_template('login.html')
