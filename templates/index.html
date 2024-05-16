@@ -13,7 +13,7 @@
 <div class="w3-right">
   <div class="w3-bar">
     <!-- Right Menu -->
-    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">Add a new mortgage</button>
+    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px" onclick="new_mortgage()">Add a new mortgage</button>
     <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">Update an existing mortgage</button>
     <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">View History</button>
     <button id="logoutButton" class="w3-bar-item w3-button w3-light-grey" style="font-size:20px" onclick="logout()">Logout</button>
@@ -31,7 +31,7 @@
 <div class="w3-row">
   <!-- Left Section -->
   <div class="w3-col s6 w3-margin-top">
-    <div class="w3-container"> <!--style="padding-right: 0"-->
+    <div class="w3-container">
       <div class="w3-cell-row">
         <div class="w3-container w3-cell w3-center" style="padding: 0">
           <h2>Analysis Summary</h2>
@@ -137,6 +137,10 @@
 <script>
   function logout() {
       window.location.href = '/logout';  // Redirect to the logout endpoint
+  }
+
+  function new_mortgage() {
+    window.location.href = '/new_mortgage';  // Redirect to the add mortgage endpoint
   }
 </script>
 

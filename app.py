@@ -54,6 +54,16 @@ def register():
     else:
         error = 'An error has occured - please try again'
         return render_template('register.html', error=error)
+    
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    if request.method == 'GET':
+        return render_template('index.html')
+    
+@app.route('/new_mortgage', methods=['GeT','POST'])
+def new_mortgage():
+    if request.method == 'GET':
+        return render_template('new_mortgage.html')
 
 @app.route('/logout')
 def logout():

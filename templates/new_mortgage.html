@@ -1,7 +1,77 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>New Mortgage</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body>
+        <div class="w3-container container">
+            <div class="w3-bar w3-light-blue header">
+                <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
+                <h1 class="w3-bar-item title">Add Mortgage</h1>
+                <a href="user_settings.html" class="w3-bar-item w3-button user-icon">
+                    <i class="material-icons" style="font-size: 24px">person</i>
+                </a>
+            </div>
+
+            <div class="w3-container content">
+                <div class="w3-container form-section">
+                    <form class-"w3-container w3-card-4" action="#" method="POST">
+                        <div class="form-group">
+                            <label>Mortgage:</label>
+                            <input class="w3-input" type="text" name="mortgage-name" value="Add mortgage name"><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Principal ($):</label>
+                            <input class="w3-input" type="text" name="principal" value="Amount"><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Interest Rate (%):</label>
+                            <input class="w3-input" type="text" name="interest-rate" value="% p.a"><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Desposit ($):</label>
+                            <input class="w3-input" type="text" name="deposit" value="Amount"><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Date:</label>
+                            <input class="w3-input" type="date" name="start-date"><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Extra Costs ($):</label>
+                            <input class="w3-input" type="text" name="extra-costs" value="Amount"><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Term (Years):</label>
+                            <input class="w3-input" type="text" name="term" value="Years"><br><br>
+                        </div>
+                        <button class="w3-button w3-light-blue" type="button">Calculate</button>
+                    </form>
+                </div>
+
+                <div class="w3-container graph-section">
+                    <div class="w3-container w3-card-4" style="height: 200px">
+                        <h2>Analysis Graph</h2>
+                        <!-- Graph will go here-->
+                    </div>
+
+                    <div class="w3-container w3-card-4 w3-margin-top">
+                        <h2>Summary</h2>
+                        <!-- Summary table goes here-->
+                    </div>
+
+                    <button class="w3-button w3-light-blue w3-margin-top">Save Mortgage</button>
+                </div>
+            </div>
+        </div>
     </body>
+    
+    <script>
+        function index() {
+            window.location.href = "/home";
+        }
+    </script>
 </html>
