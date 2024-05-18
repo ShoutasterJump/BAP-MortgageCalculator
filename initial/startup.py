@@ -2,8 +2,10 @@ from initial.authkey import load_key
 import psycopg2
 from psycopg2 import sql
 
+print("test")
 
 def initial():
+    print("test2")
     # Connect to PostgreSQL (you may need to adjust the connection parameters)
     conn = psycopg2.connect (
         user="postgres",
@@ -93,3 +95,5 @@ def initial():
     conn.close()
 
     load_key()
+
+initial()
