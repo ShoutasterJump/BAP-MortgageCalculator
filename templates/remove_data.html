@@ -1,7 +1,62 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <title>Remove Data</title>
     </head>
     <body>
+        <div class="w3-container container">
+            <div class="w3-bar w3-light-blue header">
+                <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
+                <h1 class="w3-bar-item title">Removing Data</h1>
+                <a href="user_settings" class="w3-bar-item w3-button user-icon">
+                    <i class="material-icons" style="font-size: 24px">person</i>
+                </a>
+            </div>
+    
+            <div class="w3-container content">
+                <div class="w3-container section">
+                    <h2 class="section-title">Transactions:</h2>
+                    <div class="table-container" id="transactions-table-container">
+                        <table class="w3-table w3-border w3-bordered w3-hoverable" id="transactions-table">
+                            <tr>
+                                <th>Date</th>
+                                <th>Comment</th>
+                                <th>Related Mortgage</th>
+                                <th></th>
+                            </tr>
+                            <!-- Dynamic rows go here -->
+                        </table>
+                    </div>
+                </div>
+    
+                <div class="divider"></div>
+    
+                <div class="w3-container section">
+                    <h2 class="section-title">Mortgage(s):</h2>
+                    <div class="table-container" id="mortgages-table-container">
+                        <table class="w3-table w3-border w3-bordered w3-hoverable" id="mortgages-table">
+                            <tr>
+                                <th>Mortgage Name</th>
+                                <th>Current Balance</th>
+                                <th>Remaining Term</th>
+                                <th></th>
+                            </tr>
+                            <!-- Dynamic rows go here -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function index() {
+                window.location.href = "/home";
+            }
+        </script>
     </body>
 </html>

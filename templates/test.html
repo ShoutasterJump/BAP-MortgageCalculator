@@ -1,85 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update a Mortgage</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div class="w3-container container">
+        <div class="w3-bar w3-light-blue header">
+            <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
+            <h1 class="w3-bar-item title">Update a Mortgage</h1>
+            <a href="user_settings.html" class="w3-bar-item w3-button user-icon">
+                <i class="material-icons" style="font-size: 24px">person</i>
+            </a>
+        </div>
 
-<!-- Header Section -->
-<div class="w3-bar">
-  <!-- Left Menu -->
-  <div class="w3-bar-item">
-    <!-- Dynamic Menu Content (Generated from Backend) -->
-    <a href="#">Dynamic Item 1</a>
-    <a href="#">Dynamic Item 2</a>
-    <!-- Add more dynamic items here -->
-  </div>
+        <div class="w3-container content">
+            <div class="w3-container form-section">
+                <label>Mortgage:</label>
+                <select class="w3-dropdown-click" style="width: 100%" name="mortgages">
+                    <option value="">Select a Mortgage</option>
+                </select><br><br>
+                <form class="w3-container w3-card-4" action="#" method="POST">
+                    <div class="form-group">
+                        <label>Date:</label>
+                        <input class="w3-input" type="date" name="update-date" value=""><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Principal ($):</label>
+                        <input class="w3-input" type="text" name="principal" value=""><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (%):</label>
+                        <input class="w3-input" type="text" name="interest-rate" value=""><br><br>
+                    </div>
+                    <div class="form-group w3-border">
+                        <label>Term:</label><br><br>
+                        <div class="term-inputs">
+                            <label>Years:</label>
+                            <input class="w3-input" type="text" name="term-years" value="">
+                            <label>Months:</label>
+                            <input class="w3-input" type="text" name="term-months" value="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Override ($):</label>
+                        <div class="update-mortgage-toggle-switch">
+                            <label class="switch">
+                                <p>Fortnightly</p>
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                                <p>Monthly</p>
+                            </label>
+                        </div>
+                        <input class="w3-input" type="text" name="payment-override" value=""><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Costs ($):</label>
+                        <input class="w3-input" type="text" name="additional-costs" value=""><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Comment:</label>
+                        <input class="w3-input" style="height: 100px" type="text" name="comment" value=""><br><br>
+                    </div>
+                    <button class="w3-button w3-light-blue" type="submit">Update Mortgage</button>
+                </form>
+            </div>
 
-  <!-- Right Menu -->
-  <div class="w3-bar-item w3-right">
-    <button class="w3-button">Button 1</button>
-    <button class="w3-button">Button 2</button>
-    <button class="w3-button">Button 3</button>
-    <button class="w3-button">Logout</button> <!-- Moved Logout Button -->
-    <button class="w3-button">User Profile</button>
-  </div>
-</div>
+            <div class="w3-container graph-section">
+                <div class="w3-container w3-card-4" style="height: 200px">
+                    <h2>Analysis Graph</h2>
+                    <!-- Graph will go here-->
+                </div>
 
-<!-- Main Content Sections -->
-<div class="w3-container w3-row">
+                <div class="w3-container w3-card-4 w3-margin-top">
+                    <h2>Summary</h2>
+                    <!-- Summary table goes here-->
+                </div>
 
-  <!-- Top Left Section -->
-  <div class="w3-col m6">
-    <h2>Top Left Section</h2>
-    <!-- Fixed Table -->
-    <table class="w3-table w3-bordered">
-      <!-- Table content goes here -->
-    </table>
-    <div class="w3-row">
-      <div class="w3-col m6">
-        <!-- Date Selection Box -->
-        <input type="date" class="w3-input w3-border">
-      </div>
-      <div class="w3-col m6">
-        <!-- Toggle Switch -->
-        <label class="w3-switch">
-          <input type="checkbox">
-          <span class="w3-slider"></span>
-        </label>
-      </div>
+                <button class="w3-button w3-light-blue w3-margin-top">Save Changes</button>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- Top Right Section -->
-  <div class="w3-col m6">
-    <h2>Top Right Section</h2>
-    <!-- Placeholder for Graph -->
-    <div id="graphPlaceholder" class="w3-card-4"></div>
-  </div>
-</div>
-
-<!-- Bottom Section -->
-<div class="w3-container">
-  <h2>Bottom Section</h2>
-  <!-- Dynamically Rendered Table -->
-  <table class="w3-table-all">
-    <!-- Table content goes here -->
-  </table>
-  <div class="w3-row">
-    <div class="w3-col m6">
-      <!-- Date Selection Box for Bottom Table -->
-      <input type="date" class="w3-input w3-border">
-    </div>
-    <div class="w3-col m6">
-      <!-- Toggle Switch for Bottom Table -->
-      <label class="w3-switch">
-        <input type="checkbox">
-        <span class="w3-slider"></span>
-      </label>
-    </div>
-  </div>
-</div>
-
 </body>
+<script>
+    function index() {
+        window.location.href = "/home";
+    }
+</script>
 </html>

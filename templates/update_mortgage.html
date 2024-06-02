@@ -1,7 +1,95 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Update a Mortgage</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body>
+        <div class="w3-container container">
+            <div class="w3-bar w3-light-blue header">
+                <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
+                <h1 class="w3-bar-item title">Update a Mortgage</h1>
+                <a href="user_settings" class="w3-bar-item w3-button user-icon">
+                    <i class="material-icons" style="font-size: 24px">person</i>
+                </a>
+            </div>
+
+            <div class="w3-container content">
+                <div class="w3-container form-section">
+                    <label>Mortgage:</label>
+                    <select class="w3-dropdown-click" style="width: 100%" name="mortgages">
+                        <option value="">Select a Mortgage</option>
+                    </select><br><br>
+                    <form class="w3-container w3-card-4" action="#" method="POST">
+                        <div class="form-group">
+                            <label>Date:</label>
+                            <input class="w3-input" type="date" name="update-date" value=""><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Principal ($):</label>
+                            <input class="w3-input" type="text" name="principal" value=""><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Interest Rate (%):</label>
+                            <input class="w3-input" type="text" name="interest-rate" value=""><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Term:</label>
+                            <div class="term-inputs">
+                                <label>Years:</label>
+                                <input class="w3-input term-input" type="text" name="term-years" value="">
+                                <label>Months:</label>
+                                <input class="w3-input term-input" type="text" name="term-months" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Payment Override ($):</label>
+                            <div class="update-mortgage-toggle-switch">
+                                <p>Fortnightly</p>
+                                <label class="switch">
+                                    <input type="checkbox">
+                                    <span class="slider round"></span>
+                                    </label>
+                                <p>Monthly</p>
+                            </div>
+                            <input class="w3-input" type="text" name="payment-override" value=""><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Additional Costs ($):</label>
+                            <input class="w3-input" type="text" name="additional-costs" value=""><br><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Comment:</label>
+                            <input class="w3-input" style="height: 100px" type="text" name="comment" value=""><br><br>
+                        </div>
+                        <button class="w3-button w3-light-blue" type="button">Update Mortgage</button>
+                    </form>
+                </div>
+                
+                <div class="w3-container graph-section">
+                    <div class="w3-container w3-card-4" style="height: 200px">
+                        <h2>Analysis Graph</h2>
+                        <!-- Graph will go here-->
+                    </div>
+
+                    <div class="w3-container w3-card-4 w3-margin-top">
+                        <h2>Summary</h2>
+                        <!-- Summary table goes here-->
+                    </div>
+
+                    <button class="w3-button w3-light-blue w3-margin-top">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function index() {
+                window.location.href = "/home";
+            }
+        </script>
     </body>
 </html>

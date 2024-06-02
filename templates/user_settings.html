@@ -1,7 +1,50 @@
 <!DOCTYPE html>
 <html>
-    <head>
-    </head>
-    <body>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Account Settings</title>
+</head>
+<body>
+    <div class="w3-container content">
+        <div class="w3-card-4 settings-form">
+            <div class="w3-container w3-light-blue">
+                <h2>Account Settings</h2>
+            </div>
+            <form class="w3-container" action="#" method="POST">
+                <p>
+                    <label>User name:</label>
+                    <span></span>
+                </p>
+                <p>
+                    <label>Old password:</label>
+                    <input class="w3-input" type="password" name="old-password" placeholder="Enter previous password">
+                </p>
+                <p>
+                    <label>New password:</label>
+                    <input class="w3-input" type="password" name="new-password" placeholder="Enter new password">
+                </p>
+                <p>
+                    <label>Confirm password:</label>
+                    <input class="w3-input" type="password" name="confirm-password" placeholder="Confirm new password">
+                </p>
+                <p>
+                    <button class="w3-button w3-light-blue w3-margin-top full-width-button" type="submit">Update</button>
+                </p>
+                <p>
+                    <button class="w3-button w3-light-gray w3-margin-top full-width-button" type="button" onclick="index()">Home</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function index() {
+            window.location.href = "/home";
+        }
+    </script>
+</body>
 </html>

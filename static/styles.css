@@ -1,55 +1,95 @@
-/* Indedx page */
-/* The switch - the box around the slider */
-.switch {
+/* Specific styles for Update mortgage Page */
+.term-inputs {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-  
+
+.term-inputs label {
+    margin: 0 5px 0 0;
+    width: auto;
+}
+
+.term-inputs .term-input {
+    width: 100px;
+    margin-right: 10px;
+}
+
+.update-mortgage-toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+    /*justify-content: flex-start;
+    max-width: 300px;*/
+}
+
+.update-mortgage-toggle-switch p {
+    margin: 0 5px 0 0;
+    display: inline-block;
+}
+
+.update-mortgage-toggle-switch .switch {
+    width: auto;
+    padding: 0;
+}
+
+/* Index page */
+/* The switch - the box around the slider */
+.switch {
+    /* display: flex;
+    align-items: center;
+    gap: 5px; */
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    width: auto !important;
+    padding: 10px;
+}
+
+.switch p {
+    margin: 0 5px;
+}
+
 /* Hide default HTML checkbox */
 .switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
-  
+
 /* The slider */
 .slider {
     position: relative;
     cursor: pointer;
     display: inline-block;
     width: 50px;
-    height: 20px;
+    height: 24px;
     background-color: #ccc;
-    border-radius: 34px;
-    -webkit-transition: .4s;
-    transition: .4s;
-    overflow: hidden;
+    border-radius: 24px;
+    transition: background-color 0.4s;
 }
-  
+
 .slider:before {
     position: absolute;
     content: "";
-    height: 20px; 
-    width: 20px; 
+    height: 20px;
+    width: 20px;
     left: 2px;
-    top: 0;
-    transform: translate(0, -50%);
+    top: 50%;
+    transform: translateY(-50%);
     background-color: white;
     border-radius: 50%;
-    -webkit-transition: .4s;
-    transition: .4s;
-    transform: translateX(-2px);
+    transition: transform 0.4s;
 }
-  
+
 input:checked + .slider {
     background-color: #2196F3;
 }
-  
+
 input:checked + .slider:before {
-    transform: translateX(30px);
+    transform: translate(26px, -50%);
 }
-  
+
 .w3-input[type="date"] {
     height: 30px;
 }
@@ -103,6 +143,7 @@ input:checked + .slider:before {
 
 .from-section form .from-group {
     display: flex;
+    flex-direction: row;
     align-items: center;
     margin-bottom: 10px;
 }
@@ -133,4 +174,86 @@ input:checked + .slider:before {
 
 .user-icon {
     order: 3;
+}
+
+/* ------------------------------------------------------------------------------------------------------------- */
+/* Remove data page */
+.section {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.section-title {
+    text-align: center;
+    font-size:  24px;
+    margin-bottom: 10px;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th, .table-container td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.table-container th {
+    background-color: #f2f2f2;
+}
+
+.delete-button {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #d32f2f;
+}
+
+.divider {
+    width: 1px;
+    background-color: #ccc;
+    margin: 0 20px;
+}
+
+/* ------------------------------------------------------------------------------------------------------------- */
+/* Specific styles for Account Settings Page */
+.settings-form {
+    width: 300px;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+.settings-form h2 {
+    text-align: center;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.settings-form form p {
+    margin: 15px 0;
+}
+
+.settings-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.full-width-button {
+    width: calc(100% - 20px); /* Full width minus padding */
+    margin-left: 10px;
+    margin-right: 10px;
 }

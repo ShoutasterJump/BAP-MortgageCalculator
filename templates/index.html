@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -14,10 +15,10 @@
   <div class="w3-bar">
     <!-- Right Menu -->
     <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px" onclick="new_mortgage()">Add a new mortgage</button>
-    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">Update an existing mortgage</button>
-    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px">View History</button>
+    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px" onclick="update_mortgage()">Update an existing mortgage</button>
+    <button class="w3-bar-item w3-button w3-light-grey" style="font-size:20px" onclick="remove_data()">View History</button>
     <button id="logoutButton" class="w3-bar-item w3-button w3-light-grey" style="font-size:20px" onclick="logout()">Logout</button>
-    <button class="w3-bar-item w3-button w3-light-grey"><i class="material-icons" style="font-size:24px">person</i></button>
+    <button class="w3-bar-item w3-button w3-light-grey" onclick="user_settings()"><i class="material-icons" style="font-size:24px">person</i></button>
   </div>
 </div>
 <div class="w3-bar w3-left">
@@ -141,6 +142,18 @@
 
   function new_mortgage() {
     window.location.href = '/new_mortgage';  // Redirect to the add mortgage endpoint
+  }
+
+  function update_mortgage() {
+    window.location.href = '/update_mortgage';  // Redirect to the update mortgage endpoint
+  }
+
+  function remove_data() {
+    window.location.href = '/remove_data';  // Redirect to the removing data endpoint
+  }
+
+  function user_settings() {
+    window.location.href = '/user_settings';  // Redirect to the user settings endpoint
   }
 </script>
 

@@ -64,6 +64,21 @@ def home():
 def new_mortgage():
     if request.method == 'GET':
         return render_template('new_mortgage.html')
+    
+@app.route('/update_mortgage', methods=['GeT','POST'])
+def update_mortgage():
+    if request.method == 'GET':
+        return render_template('update_mortgage.html')
+
+@app.route('/remove_data', methods=['GeT','POST'])
+def remove_data():
+    if request.method == 'GET':
+        return render_template('remove_data.html')
+    
+@app.route('/user_settings', methods=['GeT','POST'])
+def user_settings():
+    if request.method == 'GET':
+        return render_template('user_settings.html')
 
 @app.route('/logout')
 def logout():
