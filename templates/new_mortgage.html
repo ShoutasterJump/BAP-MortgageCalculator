@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     </head>
     <body>
         <div class="w3-container container">
@@ -19,51 +20,71 @@
 
             <div class="w3-container content">
                 <div class="w3-container form-section">
-                    <form class-"w3-container w3-card-4" action="#" method="POST">
+                    <form class="w3-container w3-card-4" action="/new_mortgage" method="POST">
                         <div class="form-group">
                             <label>Mortgage:</label>
-                            <input class="w3-input" type="text" name="mortgage-name" value="Add mortgage name"><br><br>
+                            <input class="w3-input" type="text" name="mortgage-name" value="{{ mortgage_data['mortgage_name'] }}"><br><br>
                         </div>
                         <div class="form-group">
                             <label>Principal ($):</label>
-                            <input class="w3-input" type="text" name="principal" value="Amount"><br><br>
+                            <input class="w3-input" type="text" name="principal" value="{{ mortgage_data['principal'] }}"><br><br>
                         </div>
                         <div class="form-group">
                             <label>Interest Rate (%):</label>
-                            <input class="w3-input" type="text" name="interest-rate" value="% p.a"><br><br>
+                            <input class="w3-input" type="text" name="interest-rate" value="{{ mortgage_data['interest_rate'] }}"><br><br>
                         </div>
                         <div class="form-group">
-                            <label>Desposit ($):</label>
-                            <input class="w3-input" type="text" name="deposit" value="Amount"><br><br>
+                            <label>Deposit ($):</label>
+                            <input class="w3-input" type="text" name="deposit" value="{{ mortgage_data['deposit'] }}"><br><br>
                         </div>
                         <div class="form-group">
                             <label>Start Date:</label>
-                            <input class="w3-input" type="date" name="start-date"><br><br>
+                            <input class="w3-input" type="date" name="start-date" value="{{ mortgage_data['start_date'] }}"><br><br>
                         </div>
                         <div class="form-group">
                             <label>Extra Costs ($):</label>
-                            <input class="w3-input" type="text" name="extra-costs" value="Amount"><br><br>
+                            <input class="w3-input" type="text" name="extra-costs" value="{{ mortgage_data['extra_costs'] }}"><br><br>
                         </div>
                         <div class="form-group">
                             <label>Term (Years):</label>
-                            <input class="w3-input" type="text" name="term" value="Years"><br><br>
+                            <input class="w3-input" type="text" name="term" value="{{ mortgage_data['term'] }}"><br><br>
                         </div>
-                        <button class="w3-button w3-light-blue" type="button">Calculate</button>
+                        <input class="w3-button w3-light-blue calculate-button" type="submit" value="Calculate">
                     </form>
+                    <p name="error" value="">{{ error }}</p>
                 </div>
 
                 <div class="w3-container graph-section">
-                    <div class="w3-container w3-card-4" style="height: 200px">
+                    <div class="w3-container w3-card-4 graph-container">
                         <h2>Analysis Graph</h2>
-                        <!-- Graph will go here-->
+                        {% if graph_div %}
+                            <div>{{ graph_div | safe }}</div>
+                        {% endif %}
                     </div>
 
-                    <div class="w3-container w3-card-4 w3-margin-top">
+                    <div class="w3-container w3-card-4 summary-container">
                         <h2>Summary</h2>
-                        <!-- Summary table goes here-->
+                        <!-- Display summary data here -->
+                        {% if analysis_result %}
+                            <table class="w3-table w3-bordered">
+                                <tr>
+                                    <th>Repayment Type</th>
+                                    <th>Monthly</th>
+                                    <th>Fortnightly</th>
+                                </tr>
+                                <tr>
+                                    <td>Repayment Amount</td>
+                                    <td>{{ analysis_result.monthly_repayment }}</td>
+                                    <td>{{ analysis_result.fortnightly_repayment }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Repayment</td>
+                                    <td>{{ analysis_result.monthly_total_repayment }}</td>
+                                    <td>{{ analysis_result.fortnightly_total_repayment }}</td>
+                                </tr>
+                            </table>
+                        {% endif %}
                     </div>
-
-                    <button class="w3-button w3-light-blue w3-margin-top">Save Mortgage</button>
                 </div>
             </div>
         </div>
