@@ -1,32 +1,14 @@
 import datetime
 
-
 class Transaction:
-    def __init__(self, transactionID, currentPrincipal, currentInterest, startDate, extraPayment, extraPaymentType, ballonPayment, comment):
-        self._transactionID = transactionID
-        self._currentPrincipal = currentPrincipal
-        self._currentInterest = currentInterest
-        self._startDate = startDate
-        self._extraPayment = extraPayment
-        self._extraPaymentType = extraPaymentType
-        self._ballonPayment = ballonPayment
-        self._comment = comment
-    
-    @property
-    def transactionID(self):
-        return self._transactionID
-    
-    @transactionID.setter
-    def transactionID(self, value):
-        if not value:
-            raise ValueError("Transaction ID must be provided.")
-        try:
-            transaction_ID = int(value)
-        except ValueError:
-            raise ValueError("Mortgage ID must be an integer")
-        if transaction_ID <= 0:
-            raise ValueError("Mortgage ID must be between 1 and 8")
-        self._trasnactionID = transaction_ID
+    def __init__(self, currentPrincipal, currentInterest, startDate, extraPayment, extraPaymentType, balloonPayment, comment):
+        self.currentPrincipal = currentPrincipal
+        self.currentInterest = currentInterest
+        self.startDate = startDate
+        self.extraPayment = extraPayment
+        self.extraPaymentType = extraPaymentType
+        self.balloonPayment = balloonPayment
+        self.comment = comment
     
     @property
     def currentPrincipal(self):
@@ -67,12 +49,16 @@ class Transaction:
     @startDate.setter
     def startDate(self, value):
         if not value:
-            self._startDate = datetime.today()
-        try:
-            startDate = datetime.strptime(value, '%Y-%m-%d')
-        except ValueError:
-            raise ValueError("Start date must be in YYYY-MM-DD format")
-        self._estabDate = startDate
+            self._startDate = datetime.datetime.today().strftime("%Y-%m-%d")
+        elif isinstance(value, datetime.date):
+            self._startDate = value.strftime("%Y-%m-%d")
+        elif isinstance(value, str):
+            try:
+                self._startDate = datetime.datetime.strptime(value, '%Y-%m-%d').strftime("%Y-%m-%d")
+            except ValueError:
+                raise ValueError("Start date must be in YYYY-MM-DD format")
+        else:
+            raise TypeError("Start date must be a string or datetime.date")
     
     @property
     def extraPayment(self):
@@ -82,13 +68,14 @@ class Transaction:
     def extraPayment(self, value):
         if not value:
             self._extraPayment = 0
-        try:
-            extra_payment = float(value)
-        except ValueError:
-            raise ValueError("Extra Payment must be a number")
-        if extra_payment < 0:
-            raise ValueError("Extra Payment cannot be negative")
-        self._extraPayment = extra_payment
+        else:
+            try:
+                extra_payment = float(value)
+            except ValueError:
+                raise ValueError("Extra Payment must be a number")
+            if extra_payment < 0:
+                raise ValueError("Extra Payment cannot be negative")
+            self._extraPayment = extra_payment
     
     @property
     def extraPaymentType(self):
@@ -98,25 +85,27 @@ class Transaction:
     def extraPaymentType(self, value):
         if not value:
             self._extraPaymentType = "None"
-        if value not in ["Monthly", "Fortnightly", "None"]:
-            raise ValueError("Extra Payment Type must be 'Monthly', 'Fortnightly', or 'None'")
-        self._extraPaymentType = value
+        else:
+            if value not in ["Monthly", "Fortnightly", "None"]:
+                raise ValueError("Extra Payment Type must be 'Monthly', 'Fortnightly', or 'None'")
+            self._extraPaymentType = value
     
     @property
-    def ballonPayment(self):
-        return self._ballonPayment
+    def balloonPayment(self):
+        return self._balloonPayment
     
-    @ballonPayment.setter
-    def ballonPayment(self, value):
+    @balloonPayment.setter
+    def balloonPayment(self, value):
         if not value:
-            self._ballonPayment = 0
-        try:
-            ballon_payment = int(value)
-        except ValueError:
-            raise ValueError("Ballon Payment must be a number")
-        if ballon_payment < 0:
-            raise ValueError("Ballon Payment cannot be negative")
-        self._ballonPayment = ballon_payment
+            self._balloonPayment = 0
+        else:
+            try:
+                balloon_payment = int(value)
+            except ValueError:
+                raise ValueError("Balloon Payment must be a number")
+            if balloon_payment < 0:
+                raise ValueError("Balloon Payment cannot be negative")
+            self._balloonPayment = balloon_payment
     
     @property
     def comment(self):
@@ -126,4 +115,5 @@ class Transaction:
     def comment(self, value):
         if not value:
             self._comment = ""
-        self._comment = str(value)
+        else:
+            self._comment = str(value)

@@ -1,95 +1,255 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Update a Mortgage</title>
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    </head>
-    <body>
-        <div class="w3-container container">
-            <div class="w3-bar w3-light-blue header">
-                <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
-                <h1 class="w3-bar-item title">Update a Mortgage</h1>
-                <a href="user_settings" class="w3-bar-item w3-button user-icon">
-                    <i class="material-icons" style="font-size: 24px">person</i>
-                </a>
-            </div>
-
-            <div class="w3-container content">
-                <div class="w3-container form-section">
-                    <label>Mortgage:</label>
-                    <select class="w3-dropdown-click" style="width: 100%" name="mortgages">
-                        <option value="">Select a Mortgage</option>
-                    </select><br><br>
-                    <form class="w3-container w3-card-4" action="#" method="POST">
-                        <div class="form-group">
-                            <label>Date:</label>
-                            <input class="w3-input" type="date" name="update-date" value=""><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Principal ($):</label>
-                            <input class="w3-input" type="text" name="principal" value=""><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Interest Rate (%):</label>
-                            <input class="w3-input" type="text" name="interest-rate" value=""><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Term:</label>
-                            <div class="term-inputs">
-                                <label>Years:</label>
-                                <input class="w3-input term-input" type="text" name="term-years" value="">
-                                <label>Months:</label>
-                                <input class="w3-input term-input" type="text" name="term-months" value="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Payment Override ($):</label>
-                            <div class="update-mortgage-toggle-switch">
-                                <p>Fortnightly</p>
-                                <label class="switch">
-                                    <input type="checkbox">
-                                    <span class="slider round"></span>
-                                    </label>
-                                <p>Monthly</p>
-                            </div>
-                            <input class="w3-input" type="text" name="payment-override" value=""><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Additional Costs ($):</label>
-                            <input class="w3-input" type="text" name="additional-costs" value=""><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Comment:</label>
-                            <input class="w3-input" style="height: 100px" type="text" name="comment" value=""><br><br>
-                        </div>
-                        <button class="w3-button w3-light-blue" type="button">Update Mortgage</button>
-                    </form>
-                </div>
-                
-                <div class="w3-container graph-section">
-                    <div class="w3-container w3-card-4" style="height: 200px">
-                        <h2>Analysis Graph</h2>
-                        <!-- Graph will go here-->
-                    </div>
-
-                    <div class="w3-container w3-card-4 w3-margin-top">
-                        <h2>Summary</h2>
-                        <!-- Summary table goes here-->
-                    </div>
-
-                    <button class="w3-button w3-light-blue w3-margin-top">Save Changes</button>
-                </div>
-            </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update a Mortgage</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="w3-container container">
+        <div class="w3-bar w3-light-blue header">
+            <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
+            <h1 class="w3-bar-item title">Update a Mortgage</h1>
+            <a href="user_settings" class="w3-bar-item w3-button user-icon">
+                <i class="material-icons" style="font-size: 24px">person</i>
+            </a>
         </div>
 
-        <script>
-            function index() {
-                window.location.href = "/home";
+        <div class="w3-container content">
+            <div class="w3-container form-section">
+                <label>Mortgage:</label>
+                <select class="w3-dropdown-click w3-light-blue" style="width: 100%" name="mortgages" id="mortgageSelect" onchange="loadMortgageData(this.value)">
+                    <option value="">Select a Mortgage</option>
+                    {% for mortgage in mortgages %}
+                    <option value="{{ mortgage.id }}">{{ mortgage.name }}</option>
+                    {% endfor %}
+                </select><br><br>
+                <form class="w3-container w3-card-4" id="mortgageForm" action="/save_transaction" method="POST">
+                    <input type="hidden" name="mortgage-id" id="mortgage-id">
+                    <div class="form-group">
+                        <label>Date:</label>
+                        <input class="w3-input" type="date" name="update-date" id="update-date" value="" required><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Principal ($):</label>
+                        <input class="w3-input" type="text" name="principal" id='principal'><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (%):</label>
+                        <input class="w3-input" type="text" name="interest-rate" id='interest-rate'><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Term:</label>
+                        <div class="term-inputs">
+                            <label>Years:</label>
+                            <input class="w3-input term-input" type="text" name="term-years" id="term-years">
+                            <label>Months:</label>
+                            <input class="w3-input term-input" type="text" name="term-months" id="term-months">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Override ($):</label>
+                        <div class="update-mortgage-toggle-switch">
+                            <p>Fortnightly</p>
+                            <label class="switch">
+                                <input type="checkbox" id="payment-override-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                            <p>Monthly</p>
+                        </div>
+                        <input class="w3-input" type="text" name="payment-override" id="payment-override"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Balloon/One off Payment ($):</label>
+                        <input class="w3-input" type="text" name="balloon-payment" id="balloon-payment"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Comment:</label>
+                        <input class="w3-input" style="height: 100px" type="text" name="comment" id="comment"><br><br>
+                    </div>
+                    <button class="w3-button w3-light-blue calculate-button" type="button" onclick="updateGraphAndSummary()">Update Mortgage</button>
+                </form>
+                <p name=error, value="">
+            </div>
+            
+            <div class="w3-container graph-section">
+                <div class="w3-container w3-card-4 graph-container">
+                    <h2>Analysis Graph</h2>
+                    <div id="graph-div"></div>
+                </div>
+            
+                <div class="w3-container w3-card-4 summary-container">
+                    <h2>Summary</h2>
+                    <div class="table-container">
+                        <table class="w3-table w3-bordered">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Monthly</th>
+                                    <th>Fortnightly</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Repayment Amount</td>
+                                    <td id="monthly-repayment"></td>
+                                    <td id="fortnightly-repayment"></td>
+                                </tr>
+                                <tr>
+                                    <td>Repayment Periods</td>
+                                    <td id="monthly-periods"></td>
+                                    <td id="fortnightly-periods"></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Repayment</td>
+                                    <td id="monthly-total-repayment"></td>
+                                    <td id="fortnightly-total-repayment"></td>
+                                </tr>
+                                <tr>
+                                    <td>New Monthly Repayment</td>
+                                    <td id="new-monthly-repayment"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Change in Repayment</td>
+                                    <td id="change-in-repayment"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>New Total Repayment</td>
+                                    <td id="new-total-repayment"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Change in Total Repayment</td>
+                                    <td id="change-in-total-repayment"></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            
+                <button class="w3-button w3-light-blue w3-margin-top" onclick="saveChanges()">Save Changes</button>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        function index() {
+            window.location.href = "/home";
+        }
+
+        function loadMortgageData(mortgageId) {
+            if (mortgageId) {
+                fetch(`/get_mortgage_data/${mortgageId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error('Error fetching mortgage data:', data.error);
+                            return;
+                        }
+
+                        document.getElementById('mortgage-id').value = mortgageId;
+                        document.getElementById('update-date').value = data.update_date || "";  // Ensure update_date is correctly set
+                        document.getElementById('principal').value = data.principal;
+                        document.getElementById('interest-rate').value = data.interest_rate;
+                        document.getElementById('term-years').value = data.term_years;
+                        document.getElementById('term-months').value = data.term_months;
+                        document.getElementById('payment-override').value = data.payment_override;
+                        document.getElementById('balloon-payment').value = data.balloon_payment;
+                        document.getElementById('comment').value = data.comment;
+
+                        // Update the graph and summary
+                        const graphData = data.graph_data.data || [];
+                        const graphLayout = data.graph_data.layout || {};
+
+                        Plotly.newPlot('graph-div', graphData, graphLayout);
+
+                        document.getElementById('monthly-repayment').innerText = data.analysis_summary.monthly_repayment;
+                        document.getElementById('fortnightly-repayment').innerText = data.analysis_summary.fortnightly_repayment;
+                        document.getElementById('monthly-periods').innerText = data.analysis_summary.monthly_periods;
+                        document.getElementById('fortnightly-periods').innerText = data.analysis_summary.fortnightly_periods;
+                        document.getElementById('monthly-total-repayment').innerText = data.analysis_summary.monthly_total_repayment;
+                        document.getElementById('fortnightly-total-repayment').innerText = data.analysis_summary.fortnightly_total_repayment;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             }
-        </script>
-    </body>
+        }
+
+        function updateGraphAndSummary() {
+            const mortgageId = document.getElementById('mortgageSelect').value;
+            const updateDate = document.getElementById('update-date').value;
+            const principal = document.getElementById('principal').value;
+            const interestRate = document.getElementById('interest-rate').value;
+            const termYears = document.getElementById('term-years').value;
+            const termMonths = document.getElementById('term-months').value;
+            const paymentOverride = document.getElementById('payment-override').value;
+            const balloonPayment = document.getElementById('balloon-payment').value;
+            const comment = document.getElementById('comment').value;
+            const extraPaymentType = document.getElementById('payment-override-toggle').checked ? "Monthly" : "Fortnightly";
+    
+            const requestData = {
+                mortgage_id: mortgageId,
+                update_date: updateDate,
+                principal: parseFloat(principal),
+                interest_rate: parseFloat(interestRate),
+                term_years: parseInt(termYears),
+                term_months: parseInt(termMonths),
+                payment_override: parseFloat(paymentOverride),
+                extra_payment_type: extraPaymentType,
+                balloon_payment: parseFloat(balloonPayment),
+                comment: comment
+            };
+    
+            fetch('/update_graph_and_summary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error updating graph and summary:', data.error);
+                    return;
+                }
+    
+                const graphData = data.graph_data.data;
+                const graphLayout = data.graph_data.layout;
+                Plotly.newPlot('graph-div', graphData, graphLayout);
+    
+                document.getElementById('monthly-repayment').innerText = data.summary_html.monthly_repayment;
+                document.getElementById('fortnightly-repayment').innerText = data.summary_html.fortnightly_repayment;
+                document.getElementById('monthly-periods').innerText = data.summary_html.monthly_periods;
+                document.getElementById('fortnightly-periods').innerText = data.summary_html.fortnightly_periods;
+                document.getElementById('monthly-total-repayment').innerText = data.summary_html.monthly_total_repayment;
+                document.getElementById('fortnightly-total-repayment').innerText = data.summary_html.fortnightly_total_repayment;
+    
+                document.getElementById('new-monthly-repayment').innerText = data.change_summary.new_monthly_repayment;
+                document.getElementById('change-in-repayment').innerText = data.change_summary.change_in_repayment;
+                document.getElementById('new-total-repayment').innerText = data.change_summary.new_total_repayment;
+                document.getElementById('change-in-total-repayment').innerText = data.change_summary.change_in_total_repayment;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        
+        function saveChanges() {
+            const extraPaymentType = document.getElementById('payment-override-toggle').checked ? "Monthly" : "Fortnightly";
+            const form = document.getElementById('mortgageForm');
+            form.innerHTML += `<input type="hidden" name="extra_payment_type" value="${extraPaymentType}">`;
+            form.submit();
+        }
+    </script>
+</body>
 </html>

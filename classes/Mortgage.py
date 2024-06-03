@@ -24,17 +24,20 @@ class Mortgage:
     @property
     def estabDate(self):
         return self._estabDate
-    
+
     @estabDate.setter
     def estabDate(self, value):
         if not value:
             self._estabDate = datetime.datetime.today()
-        else:
+        elif isinstance(value, datetime.datetime):
+            self._estabDate = value
+        elif isinstance(value, str):
             try:
-                estabDate = datetime.datetime.strptime(value, '%Y-%m-%d')
+                self._estabDate = datetime.datetime.strptime(value, '%Y-%m-%d')
             except ValueError:
                 raise ValueError("Established date must be in YYYY-MM-DD format")
-            self._estabDate = estabDate
+        else:
+            raise TypeError("Established date must be a string or datetime.datetime")
 
     @property
     def initialInterest(self):

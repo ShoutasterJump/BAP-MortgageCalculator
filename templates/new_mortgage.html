@@ -1,98 +1,126 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>New Mortgage</title>
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    </head>
-    <body>
-        <div class="w3-container container">
-            <div class="w3-bar w3-light-blue header">
-                <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
-                <h1 class="w3-bar-item title">Add Mortgage</h1>
-                <a href="user_settings" class="w3-bar-item w3-button user-icon">
-                    <i class="material-icons" style="font-size: 24px">person</i>
-                </a>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New Mortgage</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="w3-container container">
+        <div class="w3-bar w3-light-blue header">
+            <button class="w3-bar-item w3-button w3-left back-button" onclick="index()">Back</button>
+            <h1 class="w3-bar-item title">Add Mortgage</h1>
+            <a href="user_settings" class="w3-bar-item w3-button user-icon">
+                <i class="material-icons" style="font-size: 24px">person</i>
+            </a>
+        </div>
+
+        <div class="w3-container content">
+            <div class="w3-container form-section">
+                <form class="w3-container w3-card-4" action="/new_mortgage" method="POST" id="mortgageForm">
+                    <div class="form-group">
+                        <label>Mortgage:</label>
+                        <input class="w3-input" type="text" name="mortgage-name" value="{{ mortgage_data['mortgage_name'] }}"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Principal ($):</label>
+                        <input class="w3-input" type="text" name="principal" value="{{ mortgage_data['principal'] }}"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (%):</label>
+                        <input class="w3-input" type="text" name="interest-rate" value="{{ mortgage_data['interest_rate'] }}"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Deposit ($):</label>
+                        <input class="w3-input" type="text" name="deposit" value="{{ mortgage_data['deposit'] }}"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date:</label>
+                        <input class="w3-input" type="date" name="start-date" value="{{ mortgage_data['start_date'] }}"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Extra Costs ($):</label>
+                        <input class="w3-input" type="text" name="extra-costs" value="{{ mortgage_data['extra_costs'] }}"><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Term (Years):</label>
+                        <input class="w3-input" type="text" name="term" value="{{ mortgage_data['term'] }}"><br><br>
+                    </div>
+                    <input type="hidden" name="save" value="false">
+                    <button class="w3-button w3-light-blue calculate-button" type="button" onclick="submitForm()">Calculate</button>
+                </form>
+                <p name="error" value="">{{ error }}</p>
             </div>
 
-            <div class="w3-container content">
-                <div class="w3-container form-section">
-                    <form class="w3-container w3-card-4" action="/new_mortgage" method="POST">
-                        <div class="form-group">
-                            <label>Mortgage:</label>
-                            <input class="w3-input" type="text" name="mortgage-name" value="{{ mortgage_data['mortgage_name'] }}"><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Principal ($):</label>
-                            <input class="w3-input" type="text" name="principal" value="{{ mortgage_data['principal'] }}"><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Interest Rate (%):</label>
-                            <input class="w3-input" type="text" name="interest-rate" value="{{ mortgage_data['interest_rate'] }}"><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Deposit ($):</label>
-                            <input class="w3-input" type="text" name="deposit" value="{{ mortgage_data['deposit'] }}"><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Start Date:</label>
-                            <input class="w3-input" type="date" name="start-date" value="{{ mortgage_data['start_date'] }}"><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Extra Costs ($):</label>
-                            <input class="w3-input" type="text" name="extra-costs" value="{{ mortgage_data['extra_costs'] }}"><br><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Term (Years):</label>
-                            <input class="w3-input" type="text" name="term" value="{{ mortgage_data['term'] }}"><br><br>
-                        </div>
-                        <input class="w3-button w3-light-blue calculate-button" type="submit" value="Calculate">
-                    </form>
-                    <p name="error" value="">{{ error }}</p>
+            <div class="w3-container graph-section">
+                <div class="w3-container w3-card-4 graph-container">
+                    <h2>Analysis Graph</h2>
+                    <div id="graph-div"></div>
                 </div>
 
-                <div class="w3-container graph-section">
-                    <div class="w3-container w3-card-4 graph-container">
-                        <h2>Analysis Graph</h2>
-                        {% if graph_div %}
-                            <div>{{ graph_div | safe }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="w3-container w3-card-4 summary-container">
-                        <h2>Summary</h2>
-                        <!-- Display summary data here -->
-                        {% if analysis_result %}
-                            <table class="w3-table w3-bordered">
-                                <tr>
-                                    <th>Repayment Type</th>
-                                    <th>Monthly</th>
-                                    <th>Fortnightly</th>
-                                </tr>
-                                <tr>
-                                    <td>Repayment Amount</td>
-                                    <td>{{ analysis_result.monthly_repayment }}</td>
-                                    <td>{{ analysis_result.fortnightly_repayment }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Total Repayment</td>
-                                    <td>{{ analysis_result.monthly_total_repayment }}</td>
-                                    <td>{{ analysis_result.fortnightly_total_repayment }}</td>
-                                </tr>
-                            </table>
-                        {% endif %}
-                    </div>
+                <div class="w3-container w3-card-4 summary-container">
+                    <h2>Summary</h2>
+                    <!-- Display summary data here -->
+                    {% if analysis_result %}
+                        <table class="w3-table w3-bordered">
+                            <tr>
+                                <th></th>
+                                <th>Monthly</th>
+                                <th>Fortnightly</th>
+                            </tr>
+                            <tr>
+                                <td>Repayment Amount</td>
+                                <td>{{ analysis_result.monthly_repayment }}</td>
+                                <td>{{ analysis_result.fortnightly_repayment }}</td>
+                            </tr>
+                            <tr>
+                                <td>Repayment Periods</td>
+                                <td>{{ analysis_result.monthly_periods }}</td>
+                                <td>{{ analysis_result.fortnightly_periods }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Repayment</td>
+                                <td>{{ analysis_result.monthly_total_repayment }}</td>
+                                <td>{{ analysis_result.fortnightly_total_repayment }}</td>
+                            </tr>
+                        </table>
+                    {% endif %}
                 </div>
+                <form id="save-form" class="w3-container w3-card-4" action="/save_mortgage" method="POST">
+                    <!-- hidden fields to pass data for saving -->
+                    <input type="hidden" name="mortgage-name" value="{{ mortgage_data['mortgage_name'] }}">
+                    <input type="hidden" name="principal" value="{{ mortgage_data['principal'] }}">
+                    <input type="hidden" name="interest-rate" value="{{ mortgage_data['interest_rate'] }}">
+                    <input type="hidden" name="deposit" value="{{ mortgage_data['deposit'] }}">
+                    <input type="hidden" name="start-date" value="{{ mortgage_data['start_date'] }}">
+                    <input type="hidden" name="extra-costs" value="{{ mortgage_data['extra_costs'] }}">
+                    <input type="hidden" name="term" value="{{ mortgage_data['term'] }}">
+                    <button class="w3-button w3-light-blue" style="width: 100%" name="save" type="submit">Save</button>
+                </form>
             </div>
         </div>
-    </body>
-    
+    </div>
+
     <script>
         function index() {
             window.location.href = "/home";
         }
+
+        function submitForm() {
+            document.getElementById('mortgageForm').submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const graphData = {{ graph_div.data | tojson | safe }};
+            const graphLayout = {{ graph_div.layout | tojson | safe }};
+            
+            if (graphData && graphData.length > 0) {
+                Plotly.newPlot('graph-div', graphData, graphLayout);
+            }
+        });
     </script>
+</body>
 </html>

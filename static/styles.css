@@ -142,7 +142,7 @@ input:checked + .slider:before {
 .graph-container {
     height: 60%;
     min-height: 300px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     overflow: visible;
     padding: 10px;
     box-sizing: border-box;
@@ -150,23 +150,9 @@ input:checked + .slider:before {
 
 .summary-container {
     max-width: 100%;
-    margin-top: 20px;
     padding: 10px;
     box-sizing: border-box;
-    overflow: hidden;
-}
-
-/* ------------------------------------------------------------------------------------------------------------- */
-/* Remove data page */
-.section {
-    flex: 1;
-    margin: 0 10px;
-}
-
-.section-title {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 10px;
+    overflow: visible;
 }
 
 .table-container {
@@ -187,6 +173,19 @@ input:checked + .slider:before {
 
 .table-container th {
     background-color: #f2f2f2;
+}
+
+/* ------------------------------------------------------------------------------------------------------------- */
+/* Remove data page */
+.section {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 10px;
 }
 
 .delete-button {

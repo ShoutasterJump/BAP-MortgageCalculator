@@ -14,22 +14,22 @@
             <div class="w3-container w3-light-blue">
                 <h2>Account Settings</h2>
             </div>
-            <form class="w3-container" action="#" method="POST">
+            <form class="w3-container" action="/user_settings" method="POST">
                 <p>
                     <label>User name:</label>
-                    <span></span>
+                    <span>{{ session['username'] }}</span>
                 </p>
                 <p>
                     <label>Old password:</label>
-                    <input class="w3-input" type="password" name="old-password" placeholder="Enter previous password">
+                    <input class="w3-input" type="password" name="old_password" placeholder="Enter previous password">
                 </p>
                 <p>
                     <label>New password:</label>
-                    <input class="w3-input" type="password" name="new-password" placeholder="Enter new password">
+                    <input class="w3-input" type="password" name="new_password" placeholder="Enter new password">
                 </p>
                 <p>
                     <label>Confirm password:</label>
-                    <input class="w3-input" type="password" name="confirm-password" placeholder="Confirm new password">
+                    <input class="w3-input" type="password" name="confirm_password" placeholder="Confirm new password">
                 </p>
                 <p>
                     <button class="w3-button w3-light-blue w3-margin-top full-width-button" type="submit">Update</button>
@@ -38,6 +38,7 @@
                     <button class="w3-button w3-light-gray w3-margin-top full-width-button" type="button" onclick="index()">Home</button>
                 </p>
             </form>
+            <p name="error" style="color:red;">{{ error }}</p>
         </div>
     </div>
 
