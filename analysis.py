@@ -4,7 +4,7 @@ def mortgage_analysis(mortgage, transactions, response):
     def calculate_repayment(principal, interest_rate, repayment_periods, frequency, date_increment, is_initial=False):
         total_interest_paid = 0
         remaining_principal = principal
-        equity_owned = []
+        remaining_principal_list = []
         interest_paid = []
         periods = []
         amortization_table = []
@@ -47,11 +47,8 @@ def mortgage_analysis(mortgage, transactions, response):
                 accumulated_interest += interest_payment
                 accumulated_principal_payments += principal_payment
 
-                equity_current = round((principal - new_balance), 2)
-                interest_current = round(total_interest_paid, 2)
-
-                equity_owned.append(equity_current)
-                interest_paid.append(interest_current)
+                remaining_principal_list.append(round(new_balance, 2))
+                interest_paid.append(round(total_interest_paid, 2))
                 periods.append(period)
 
                 amortization_table.append({
@@ -76,7 +73,7 @@ def mortgage_analysis(mortgage, transactions, response):
         return {
             "repayment_amount": round(repayment_amount, 2),
             "total_repayment": round(repayment_periods * repayment_amount, 2),
-            "equity_owned": equity_owned,
+            "remaining_principal_list": remaining_principal_list,
             "interest_paid": interest_paid,
             "periods": periods,
             "amortization_table": amortization_table,
@@ -120,24 +117,36 @@ def mortgage_analysis(mortgage, transactions, response):
         }
     elif response == "change_summary":
         new_monthly_repayment = monthly_data["repayment_amount"]
-        change_in_repayment = new_monthly_repayment - initial_monthly_data["repayment_amount"]
-        change_in_repayment = round(change_in_repayment, 2)
-        new_total_repayment = monthly_data["total_repayment"]
-        change_in_total_repayment = new_total_repayment - initial_monthly_data["total_repayment"]
-        change_in_total_repayment = round(change_in_total_repayment, 2)
+        change_in_monthly_repayment = new_monthly_repayment - initial_monthly_data["repayment_amount"]
+        change_in_monthly_repayment = round(change_in_monthly_repayment, 2)
+        new_monthly_total_repayment = monthly_data["total_repayment"]
+        change_in_monthly_total_repayment = new_monthly_total_repayment - initial_monthly_data["total_repayment"]
+        change_in_monthly_total_repayment = round(change_in_monthly_total_repayment, 2)
+
+        new_fortnightly_repayment = fortnightly_data["repayment_amount"]
+        change_in_fortnightly_repayment = new_fortnightly_repayment - initial_fortnightly_data["repayment_amount"]
+        change_in_fortnightly_repayment = round(change_in_fortnightly_repayment, 2)
+        new_fortnightly_total_repayment = fortnightly_data["total_repayment"]
+        change_in_fortnightly_total_repayment = new_fortnightly_total_repayment - initial_fortnightly_data["total_repayment"]
+        change_in_fortnightly_total_repayment = round(change_in_fortnightly_total_repayment, 2)
+
         return {
             "new_monthly_repayment": new_monthly_repayment,
-            "change_in_repayment": change_in_repayment,
-            "new_total_repayment": new_total_repayment,
-            "change_in_total_repayment": change_in_total_repayment
+            "change_in_monthly_repayment": change_in_monthly_repayment,
+            "new_monthly_total_repayment": new_monthly_total_repayment,
+            "change_in_monthly_total_repayment": change_in_monthly_total_repayment,
+            "new_fortnightly_repayment": new_fortnightly_repayment,
+            "change_in_fortnightly_repayment": change_in_fortnightly_repayment,
+            "new_fortnightly_total_repayment": new_fortnightly_total_repayment,
+            "change_in_fortnightly_total_repayment": change_in_fortnightly_total_repayment
         }
     elif response == "graph":
         return {
             "monthly_periods": monthly_data["periods"],
-            "monthly_equity_owned": monthly_data["equity_owned"],
+            "monthly_remaining_principal": monthly_data["remaining_principal_list"],
             "monthly_interest_paid": monthly_data["interest_paid"],
             "fortnightly_periods": fortnightly_data["periods"],
-            "fortnightly_equity_owned": fortnightly_data["equity_owned"],
+            "fortnightly_remaining_principal": fortnightly_data["remaining_principal_list"],
             "fortnightly_interest_paid": fortnightly_data["interest_paid"]
         }
     elif response == "amortization":

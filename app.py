@@ -260,7 +260,9 @@ def update_graph_and_summary():
 @app.route('/save_transaction', methods=['POST'])
 def save_transaction():
     try:
+        print("here!")
         mortgage_id = request.form["mortgage-id"]
+        print(mortgage_id)
         transaction = Transaction(
             float(request.form["principal"]),
             float(request.form["interest-rate"]),
@@ -270,6 +272,7 @@ def save_transaction():
             float(request.form["balloon-payment"]),
             request.form["comment"]
         )
+        print(transaction)
 
         db.connect(
             "INSERT INTO transactions (mortgage_id, current_principal, current_interest, start_date, extra_payment, extra_payment_type, balloon_payment, comment) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",

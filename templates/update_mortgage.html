@@ -112,22 +112,22 @@
                                 <tr>
                                     <td>New Monthly Repayment</td>
                                     <td id="new-monthly-repayment"></td>
-                                    <td></td>
+                                    <td id="new-fortnightly-repayment"></td>
                                 </tr>
                                 <tr>
                                     <td>Change in Repayment</td>
-                                    <td id="change-in-repayment"></td>
-                                    <td></td>
+                                    <td id="change-in-monthly-repayment"></td>
+                                    <td id="change-in-fortnightly-repayment"></td>
                                 </tr>
                                 <tr>
                                     <td>New Total Repayment</td>
-                                    <td id="new-total-repayment"></td>
-                                    <td></td>
+                                    <td id="new-monthly-total-repayment"></td>
+                                    <td id="new-fortnightly-total-repayment"></td>
                                 </tr>
                                 <tr>
                                     <td>Change in Total Repayment</td>
-                                    <td id="change-in-total-repayment"></td>
-                                    <td></td>
+                                    <td id="change-in-monthly-total-repayment"></td>
+                                    <td id="change-in-fortnightly-total-repayment"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -195,7 +195,7 @@
             const balloonPayment = document.getElementById('balloon-payment').value;
             const comment = document.getElementById('comment').value;
             const extraPaymentType = document.getElementById('payment-override-toggle').checked ? "Monthly" : "Fortnightly";
-    
+        
             const requestData = {
                 mortgage_id: mortgageId,
                 update_date: updateDate,
@@ -208,7 +208,7 @@
                 balloon_payment: parseFloat(balloonPayment),
                 comment: comment
             };
-    
+        
             fetch('/update_graph_and_summary', {
                 method: 'POST',
                 headers: {
@@ -222,22 +222,26 @@
                     console.error('Error updating graph and summary:', data.error);
                     return;
                 }
-    
+        
                 const graphData = data.graph_data.data;
                 const graphLayout = data.graph_data.layout;
                 Plotly.newPlot('graph-div', graphData, graphLayout);
-    
+        
                 document.getElementById('monthly-repayment').innerText = data.summary_html.monthly_repayment;
                 document.getElementById('fortnightly-repayment').innerText = data.summary_html.fortnightly_repayment;
                 document.getElementById('monthly-periods').innerText = data.summary_html.monthly_periods;
                 document.getElementById('fortnightly-periods').innerText = data.summary_html.fortnightly_periods;
                 document.getElementById('monthly-total-repayment').innerText = data.summary_html.monthly_total_repayment;
                 document.getElementById('fortnightly-total-repayment').innerText = data.summary_html.fortnightly_total_repayment;
-    
+        
                 document.getElementById('new-monthly-repayment').innerText = data.change_summary.new_monthly_repayment;
-                document.getElementById('change-in-repayment').innerText = data.change_summary.change_in_repayment;
-                document.getElementById('new-total-repayment').innerText = data.change_summary.new_total_repayment;
-                document.getElementById('change-in-total-repayment').innerText = data.change_summary.change_in_total_repayment;
+                document.getElementById('new-fortnightly-repayment').innerText = data.change_summary.new_fortnightly_repayment;
+                document.getElementById('change-in-monthly-repayment').innerText = data.change_summary.change_in_monthly_repayment;
+                document.getElementById('change-in-fortnightly-repayment').innerText = data.change_summary.change_in_fortnightly_repayment;
+                document.getElementById('new-monthly-total-repayment').innerText = data.change_summary.new_monthly_total_repayment;
+                document.getElementById('new-fortnightly-total-repayment').innerText = data.change_summary.new_fortnightly_total_repayment;
+                document.getElementById('change-in-monthly-total-repayment').innerText = data.change_summary.change_in_monthly_total_repayment;
+                document.getElementById('change-in-fortnightly-total-repayment').innerText = data.change_summary.change_in_fortnightly_total_repayment;
             })
             .catch(error => {
                 console.error('Error:', error);
