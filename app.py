@@ -7,7 +7,8 @@ from classes.Mortgage import Mortgage
 from analysis import *
 from graphing import *
 from classes.Transaction import Transaction
-import datetime
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 app = Flask(__name__)
 app.secret_key = '1cef852fb2a2a4f81a71deeb3b7ab273818b62500685bb72feb0965dc0004cc9'
@@ -172,30 +173,59 @@ def get_mortgage_data(mortgage_id):
         # Ensure estab_date is formatted correctly
         estab_date = temp_mortgage[3]
         print("Original estab_date:", estab_date)
-        if isinstance(estab_date, datetime.date):
-            estab_date = estab_date.strftime("%Y-%m-%d")
+        estim_finish_date = estab_date + relativedelta(years=int(temp_mortgage[5]))
+        print("testing1")
+        current_date = datetime.now()
+        print("testing2")
+        
+        difference = relativedelta(estim_finish_date, current_date)
+        print("testing3")
+        remaining_years = difference.years
+        print("testing4")
+        remaining_months = difference.months
+        print("testing5")
+        mortgage_estab_date = estab_date.strftime("%Y-%m-%d")
         print("Formatted estab_date:", estab_date)
 
         # Create Mortgage instance
         mortgage = Mortgage(
             temp_mortgage[2],
-            estab_date,
+            mortgage_estab_date,
             float(temp_mortgage[4]),
             int(temp_mortgage[5]),
             float(temp_mortgage[6]),
             float(temp_mortgage[7]),
             float(temp_mortgage[8])
         )
+        print(mortgage)
+        
+        transactions = []
+        temp_transactions = db.connect("SELECT * FROM transactions WHERE mortgage_id = %s ORDER BY transaction_id ASC", (mortgage_id,))
+        print(temp_transactions)
+        for i in range(len(temp_transactions) - 1):
+            temp_transaction = temp_transactions[i]
+            transaction = Transaction(
+                temp_transaction[2],
+                temp_transaction[3],
+                temp_transaction[4],
+                temp_transaction[5],
+                temp_transaction[6],
+                temp_transaction[7],
+                temp_transaction[8],
+                temp_transaction[9],
+                temp_transaction[10]
+            )
+            transactions.append(transaction)
 
         # Generate analysis summary and graph data
-        analysis_summary = mortgage_analysis(mortgage, [], "new_summary")
-        graph_data = json.loads(mortgage_graph(mortgage, [], "Monthly"))
+        analysis_summary = mortgage_analysis(mortgage, transactions, "new_summary")
+        graph_data = json.loads(mortgage_graph(mortgage, transactions, "Monthly"))
 
         data = {
             "principal": mortgage.initialPrincipal,
             "interest_rate": mortgage.initialInterest,
-            "term_years": mortgage.initialTerm,
-            "term_months": 0,
+            "term_years": remaining_years,
+            "term_months": remaining_months,
             "payment_override": 0,
             "balloon_payment": 0,
             "comment": "",
@@ -218,6 +248,7 @@ def update_graph_and_summary():
     
     try:
         temp_mortgage = db.connect("SELECT * FROM mortgages WHERE mortgage_id = %s AND user_id = %s", (data['mortgage_id'], user_id))
+        print(temp_mortgage)
         if not temp_mortgage:
             raise ValueError("No mortgage found for the given ID and user.")
         
@@ -231,19 +262,50 @@ def update_graph_and_summary():
             float(temp_mortgage[7]),
             float(temp_mortgage[8])
         )
-
-        update_date = data.get('update_date', datetime.datetime.now().strftime("%Y-%m-%d"))
-        transaction = Transaction(
+        print(mortgage)
+        
+        transactions = []
+        temp_transactions = db.connect("SELECT * FROM transactions WHERE mortgage_id = %s ORDER BY transaction_id ASC", (data['mortgage_id'],))
+        print(temp_transactions)
+        for i in range(len(temp_transactions)):
+            temp_transaction = temp_transactions[i]
+            transaction = Transaction(
+                temp_transaction[2],
+                temp_transaction[3],
+                temp_transaction[4],
+                temp_transaction[5],
+                temp_transaction[6],
+                temp_transaction[7],
+                temp_transaction[8],
+                temp_transaction[9],
+                temp_transaction[10]
+            )
+            transactions.append(transaction)
+        
+        print(type(data['update_date']))
+        if data['update_date'] == "":
+            print('no date')
+            update_date = datetime.now().strftime("%Y-%m-%d")
+        else:
+            print('date')
+            update_date = data['update_date']
+        print(update_date)
+        print(int(data['term_months']))
+        new_transaction = Transaction(
             float(data['principal']),
             float(data['interest_rate']),
             update_date,
+            int(data['term_years']),
+            int(data['term_months']),
             float(data['payment_override']),
             data['extra_payment_type'],
             float(data['balloon_payment']),
             data['comment']
         )
-
-        transactions = [transaction]
+        print(new_transaction)
+ 
+        transactions.append(new_transaction)
+        print(transactions)
         analysis_summary = mortgage_analysis(mortgage, transactions, "new_summary")
         change_summary = mortgage_analysis(mortgage, transactions, "change_summary")
         graph_data = mortgage_graph(mortgage, transactions, "Monthly")
@@ -255,24 +317,34 @@ def update_graph_and_summary():
         }
         return jsonify(response_data)
     except Exception as e:
+        print("Error updating graph and summary:", str(e))
         return jsonify({"error": str(e)}), 500
-
+    
 @app.route('/save_transaction', methods=['POST'])
 def save_transaction():
     try:
         print("here!")
         mortgage_id = request.form["mortgage-id"]
         print(mortgage_id)
+        if request.form["update-date"] == "":
+            update_date = datetime.now().strftime("%Y-%m-%d")
+        else:
+            update_date = request.form["update-date"]
+        print(update_date)
+        
         transaction = Transaction(
             float(request.form["principal"]),
             float(request.form["interest-rate"]),
-            datetime.strptime(request.form["update-date"], "%Y-%m-%d"),
+            update_date,
+            int(request.form["term-years"]),
+            int(request.form["term-months"]),
             float(request.form["payment-override"]),
             request.form["extra_payment_type"],
             float(request.form["balloon-payment"]),
             request.form["comment"]
         )
         print(transaction)
+        print("test")
 
         db.connect(
             "INSERT INTO transactions (mortgage_id, current_principal, current_interest, start_date, extra_payment, extra_payment_type, balloon_payment, comment) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",

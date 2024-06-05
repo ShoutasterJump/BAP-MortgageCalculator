@@ -81,6 +81,8 @@ def initial():
             current_principal DECIMAL NOT NULL,
             current_interest DECIMAL NOT NULL,
             start_date TIMESTAMP NOT NULL,
+            remaining_years int NOT NULL,
+            remaining_months int NOT NULL,
             extra_payment DECIMAL,
             extra_payment_type VARCHAR(11) NOT NULL,
             ballon_payment INTEGER,

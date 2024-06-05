@@ -1,10 +1,12 @@
 import datetime
 
 class Transaction:
-    def __init__(self, currentPrincipal, currentInterest, startDate, extraPayment, extraPaymentType, balloonPayment, comment):
+    def __init__(self, currentPrincipal, currentInterest, startDate, remainingYears, remainingMonths, extraPayment, extraPaymentType, balloonPayment, comment):
         self.currentPrincipal = currentPrincipal
         self.currentInterest = currentInterest
         self.startDate = startDate
+        self.remainingYears = remainingYears
+        self.remainingMonths = remainingMonths
         self.extraPayment = extraPayment
         self.extraPaymentType = extraPaymentType
         self.balloonPayment = balloonPayment
@@ -59,6 +61,36 @@ class Transaction:
                 raise ValueError("Start date must be in YYYY-MM-DD format")
         else:
             raise TypeError("Start date must be a string or datetime.date")
+        
+    @property
+    def remainingYears(self):
+        return self._remainingYears
+    
+    @remainingYears.setter
+    def remainingYears(self, value):
+        if not value:
+            raise ValueError("Remaining Years must be provided.")
+        try:
+            remaining_years = int(value)
+        except ValueError:
+            raise ValueError("Remaining Years must be a number")
+        if remaining_years < 0:
+            raise ValueError("Remaining Years cannot be negative")
+        self._remainingYears = remaining_years
+    
+    @property
+    def remainingMonths(self):
+        return self._remainingMonths
+    
+    @remainingMonths.setter
+    def remainingMonths(self, value):
+        try:
+            remaining_months = int(value)
+        except ValueError:
+            raise ValueError("Remaining Months must be a number")
+        if remaining_months < 0:
+            raise ValueError("Remaining Months cannot be negative")
+        self._remainingMonths = remaining_months
     
     @property
     def extraPayment(self):

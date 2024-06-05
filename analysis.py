@@ -1,4 +1,5 @@
 import datetime
+from dateutil.relativedelta import relativedelta
 
 def mortgage_analysis(mortgage, transactions, response):
     def calculate_repayment(principal, interest_rate, repayment_periods, frequency, date_increment, is_initial=False):
@@ -13,14 +14,16 @@ def mortgage_analysis(mortgage, transactions, response):
         accumulated_interest = 0
         accumulated_principal_payments = 0
 
-        # Use precise calculation for repayment amount
-        if interest_rate > 0:
-            repayment_amount = principal * (interest_rate / (1 - (1 + interest_rate) ** -repayment_periods))
-        else:
-            repayment_amount = principal / repayment_periods
+        def calculate_repayment_amount(principal, interest_rate, repayment_periods):
+            if interest_rate > 0:
+                return principal * (interest_rate / (1 - (1 + interest_rate) ** -repayment_periods))
+            else:
+                return principal / repayment_periods
+
+        repayment_amount = calculate_repayment_amount(principal, interest_rate, repayment_periods)
+        print(f"Initial Repayment Amount Calculation: Principal: {principal}, Interest Rate: {interest_rate}, Repayment Periods: {repayment_periods}, Repayment Amount: {repayment_amount}")
 
         if not is_initial:
-            transactions.sort(key=lambda x: x.startDate if isinstance(x.startDate, datetime.datetime) else datetime.datetime.strptime(x.startDate, "%Y-%m-%d"))
             last_transaction_index = 0
 
             for period in range(1, repayment_periods + 1):
@@ -32,10 +35,11 @@ def mortgage_analysis(mortgage, transactions, response):
                         remaining_principal = transaction.currentPrincipal - transaction.balloonPayment
                         interest_rate = transaction.currentInterest / 100 / (12 if frequency == "Monthly" else 26)
                         extra_payment = transaction.extraPayment
-                        if interest_rate > 0:
-                            repayment_amount = remaining_principal * (interest_rate / (1 - (1 + interest_rate) ** -repayment_periods))
+                        if frequency == "Monthly":
+                            repayment_periods = transaction.remainingYears * 12 + transaction.remainingMonths
                         else:
-                            repayment_amount = remaining_principal / repayment_periods
+                            repayment_periods = transaction.remainingYears * 26 + round(transaction.remainingMonths / 12 * 26)
+                        repayment_amount = calculate_repayment_amount(remaining_principal, interest_rate, repayment_periods)
                         last_transaction_index += 1
 
                 interest_payment = remaining_principal * interest_rate
@@ -49,7 +53,7 @@ def mortgage_analysis(mortgage, transactions, response):
 
                 remaining_principal_list.append(round(new_balance, 2))
                 interest_paid.append(round(total_interest_paid, 2))
-                periods.append(period)
+                periods.append(current_date.strftime("%Y-%m-%d"))
 
                 amortization_table.append({
                     "Date": current_date.strftime("%Y-%m-%d"),
@@ -67,8 +71,14 @@ def mortgage_analysis(mortgage, transactions, response):
                 remaining_principal = new_balance
                 current_date += date_increment
 
+                # Ensure the principal is fully paid off
                 if remaining_principal <= 0:
+                    remaining_principal_list[-1] = 0
                     break
+
+        # Check if the loan is paid off
+        if remaining_principal > 0:
+            print(f"Warning: Mortgage not fully paid off after {repayment_periods} periods. Remaining Principal: {remaining_principal}")
 
         return {
             "repayment_amount": round(repayment_amount, 2),
@@ -86,59 +96,58 @@ def mortgage_analysis(mortgage, transactions, response):
     # Monthly calculations
     monthly_interest_rate = mortgage.initialInterest / 100 / 12
     monthly_repayment_periods = mortgage.initialTerm * 12
-    initial_monthly_data = calculate_repayment(principal, monthly_interest_rate, monthly_repayment_periods, "Monthly", datetime.timedelta(days=30), is_initial=True)
+    initial_monthly_data = calculate_repayment(principal, monthly_interest_rate, monthly_repayment_periods, "Monthly", relativedelta(months=1), is_initial=True)
 
     # Fortnightly calculations
     fortnightly_interest_rate = mortgage.initialInterest / 100 / 26
     fortnightly_repayment_periods = mortgage.initialTerm * 26
-    initial_fortnightly_data = calculate_repayment(principal, fortnightly_interest_rate, fortnightly_repayment_periods, "Fortnightly", datetime.timedelta(days=14), is_initial=True)
+    initial_fortnightly_data = calculate_repayment(principal, fortnightly_interest_rate, fortnightly_repayment_periods, "Fortnightly", relativedelta(weeks=2), is_initial=True)
 
     # Recalculate with transactions
-    monthly_data = calculate_repayment(principal, monthly_interest_rate, monthly_repayment_periods, "Monthly", datetime.timedelta(days=30))
-    fortnightly_data = calculate_repayment(principal, fortnightly_interest_rate, fortnightly_repayment_periods, "Fortnightly", datetime.timedelta(days=14))
+    monthly_data = calculate_repayment(principal, monthly_interest_rate, monthly_repayment_periods, "Monthly", relativedelta(months=1))
+    fortnightly_data = calculate_repayment(principal, fortnightly_interest_rate, fortnightly_repayment_periods, "Fortnightly", relativedelta(weeks=2))
+
+    def format_currency(value):
+        return f"${value:,.2f}"
 
     if response == "new_summary":
         return {
-            "monthly_repayment": initial_monthly_data["repayment_amount"],
+            "monthly_repayment": format_currency(initial_monthly_data["repayment_amount"]),
             "monthly_periods": monthly_repayment_periods,
-            "monthly_total_repayment": initial_monthly_data["total_repayment"],
-            "fortnightly_repayment": initial_fortnightly_data["repayment_amount"],
+            "monthly_total_repayment": format_currency(initial_monthly_data["total_repayment"]),
+            "fortnightly_repayment": format_currency(initial_fortnightly_data["repayment_amount"]),
             "fortnightly_periods": fortnightly_repayment_periods,
-            "fortnightly_total_repayment": initial_fortnightly_data["total_repayment"],
+            "fortnightly_total_repayment": format_currency(initial_fortnightly_data["total_repayment"]),
         }
     elif response == "summary":
         return {
-            "monthly_repayment": initial_monthly_data["repayment_amount"],
-            "monthly_total_repayment": initial_monthly_data["total_repayment"],
-            "fortnightly_repayment": initial_fortnightly_data["repayment_amount"],
-            "fortnightly_total_repayment": initial_fortnightly_data["total_repayment"],
-            "monthly_total_interest_paid": monthly_data["total_interest_paid"],
-            "fortnightly_total_interest_paid": fortnightly_data["total_interest_paid"]
+            "monthly_repayment": format_currency(initial_monthly_data["repayment_amount"]),
+            "monthly_total_repayment": format_currency(initial_monthly_data["total_repayment"]),
+            "fortnightly_repayment": format_currency(initial_fortnightly_data["repayment_amount"]),
+            "fortnightly_total_repayment": format_currency(initial_fortnightly_data["total_repayment"]),
+            "monthly_total_interest_paid": format_currency(monthly_data["total_interest_paid"]),
+            "fortnightly_total_interest_paid": format_currency(fortnightly_data["total_interest_paid"])
         }
     elif response == "change_summary":
         new_monthly_repayment = monthly_data["repayment_amount"]
         change_in_monthly_repayment = new_monthly_repayment - initial_monthly_data["repayment_amount"]
-        change_in_monthly_repayment = round(change_in_monthly_repayment, 2)
         new_monthly_total_repayment = monthly_data["total_repayment"]
         change_in_monthly_total_repayment = new_monthly_total_repayment - initial_monthly_data["total_repayment"]
-        change_in_monthly_total_repayment = round(change_in_monthly_total_repayment, 2)
 
         new_fortnightly_repayment = fortnightly_data["repayment_amount"]
         change_in_fortnightly_repayment = new_fortnightly_repayment - initial_fortnightly_data["repayment_amount"]
-        change_in_fortnightly_repayment = round(change_in_fortnightly_repayment, 2)
         new_fortnightly_total_repayment = fortnightly_data["total_repayment"]
         change_in_fortnightly_total_repayment = new_fortnightly_total_repayment - initial_fortnightly_data["total_repayment"]
-        change_in_fortnightly_total_repayment = round(change_in_fortnightly_total_repayment, 2)
 
         return {
-            "new_monthly_repayment": new_monthly_repayment,
-            "change_in_monthly_repayment": change_in_monthly_repayment,
-            "new_monthly_total_repayment": new_monthly_total_repayment,
-            "change_in_monthly_total_repayment": change_in_monthly_total_repayment,
-            "new_fortnightly_repayment": new_fortnightly_repayment,
-            "change_in_fortnightly_repayment": change_in_fortnightly_repayment,
-            "new_fortnightly_total_repayment": new_fortnightly_total_repayment,
-            "change_in_fortnightly_total_repayment": change_in_fortnightly_total_repayment
+            "new_monthly_repayment": format_currency(new_monthly_repayment),
+            "change_in_monthly_repayment": format_currency(change_in_monthly_repayment),
+            "new_monthly_total_repayment": format_currency(new_monthly_total_repayment),
+            "change_in_monthly_total_repayment": format_currency(change_in_monthly_total_repayment),
+            "new_fortnightly_repayment": format_currency(new_fortnightly_repayment),
+            "change_in_fortnightly_repayment": format_currency(change_in_fortnightly_repayment),
+            "new_fortnightly_total_repayment": format_currency(new_fortnightly_total_repayment),
+            "change_in_fortnightly_total_repayment": format_currency(change_in_fortnightly_total_repayment)
         }
     elif response == "graph":
         return {
