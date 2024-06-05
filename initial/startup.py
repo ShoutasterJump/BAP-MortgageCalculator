@@ -85,7 +85,7 @@ def initial():
             remaining_months int NOT NULL,
             extra_payment DECIMAL,
             extra_payment_type VARCHAR(11) NOT NULL,
-            ballon_payment INTEGER,
+            balloon_payment INTEGER,
             comment TEXT
         );
     """)

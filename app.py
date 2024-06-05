@@ -324,13 +324,19 @@ def update_graph_and_summary():
 def save_transaction():
     try:
         print("here!")
+        print(request.form)  # Print the entire form data for debugging
+
         mortgage_id = request.form["mortgage-id"]
-        print(mortgage_id)
+        print(f"mortgage_id: {mortgage_id}")
+        
         if request.form["update-date"] == "":
             update_date = datetime.now().strftime("%Y-%m-%d")
         else:
             update_date = request.form["update-date"]
-        print(update_date)
+        print(f"update_date: {update_date}")
+        
+        print(f"principal: {request.form['principal']}")
+        print(f"interest-rate: {request.form['interest-rate']}")
         
         transaction = Transaction(
             float(request.form["principal"]),
@@ -346,10 +352,11 @@ def save_transaction():
         print(transaction)
         print("test")
 
-        db.connect(
-            "INSERT INTO transactions (mortgage_id, current_principal, current_interest, start_date, extra_payment, extra_payment_type, balloon_payment, comment) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (mortgage_id, transaction.currentPrincipal, transaction.currentInterest, transaction.startDate, transaction.extraPayment, transaction.extraPaymentType, transaction.balloonPayment, transaction.comment)
+        test = db.connect(
+            "INSERT INTO transactions (mortgage_id, current_principal, current_interest, start_date, remaining_years, remaining_months, extra_payment, extra_payment_type, balloon_payment, comment) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (mortgage_id, transaction.currentPrincipal, transaction.currentInterest, transaction.startDate, transaction.remainingYears, transaction.remainingMonths, transaction.extraPayment, transaction.extraPaymentType, transaction.balloonPayment, transaction.comment)
         )
+        print(test)
         
         return redirect(url_for('home'))
     except Exception as e:

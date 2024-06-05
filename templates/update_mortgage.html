@@ -251,9 +251,32 @@
         function saveChanges() {
             const extraPaymentType = document.getElementById('payment-override-toggle').checked ? "Monthly" : "Fortnightly";
             const form = document.getElementById('mortgageForm');
-            form.innerHTML += `<input type="hidden" name="extra_payment_type" value="${extraPaymentType}">`;
+            
+            const hiddenExtraPaymentType = document.createElement('input');
+            hiddenExtraPaymentType.type = 'hidden';
+            hiddenExtraPaymentType.name = 'extra_payment_type';
+            hiddenExtraPaymentType.value = extraPaymentType;
+            form.appendChild(hiddenExtraPaymentType);
+            
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+        
+            // Ensure the values are correctly added to the form
+            document.getElementById('mortgage-id').value = document.getElementById('mortgageSelect').value;
+            document.getElementById('update-date').value = document.getElementById('update-date').value;
+            document.getElementById('principal').value = document.getElementById('principal').value;
+            document.getElementById('interest-rate').value = document.getElementById('interest-rate').value;
+            document.getElementById('term-years').value = document.getElementById('term-years').value;
+            document.getElementById('term-months').value = document.getElementById('term-months').value;
+            document.getElementById('payment-override').value = document.getElementById('payment-override').value;
+            document.getElementById('balloon-payment').value = document.getElementById('balloon-payment').value;
+            document.getElementById('comment').value = document.getElementById('comment').value;
+        
             form.submit();
         }
+        
     </script>
 </body>
 </html>
