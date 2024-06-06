@@ -33,6 +33,9 @@
                     <div class="form-group">
                         <label>Date:</label>
                         <input class="w3-input" type="date" name="update-date" id="update-date" value="" required><br><br>
+                        <input type="hidden" id="estab-date">
+                        <input type="hidden" id="initial-term-years">
+                        <input type="hidden" id="initial-term-months">
                     </div>
                     <div class="form-group">
                         <label>Principal ($):</label>
@@ -95,17 +98,17 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Repayment Amount</td>
+                                    <td>Current Repayment Amount</td>
                                     <td id="monthly-repayment"></td>
                                     <td id="fortnightly-repayment"></td>
                                 </tr>
                                 <tr>
-                                    <td>Repayment Periods</td>
+                                    <td>Current Repayment Periods</td>
                                     <td id="monthly-periods"></td>
                                     <td id="fortnightly-periods"></td>
                                 </tr>
                                 <tr>
-                                    <td>Total Repayment</td>
+                                    <td>Current Total Repayment</td>
                                     <td id="monthly-total-repayment"></td>
                                     <td id="fortnightly-total-repayment"></td>
                                 </tr>
@@ -145,6 +148,20 @@
             window.location.href = "/home";
         }
 
+        function calculateRemainingTerm(estabDate, initialTermYears, newStartDate) {
+            const estab = new Date(estabDate);
+            const newStart = new Date(newStartDate);
+    
+            const termEnd = new Date(estab);
+            termEnd.setFullYear(termEnd.getFullYear() + initialTermYears);
+    
+            const remainingTime = termEnd - newStart;
+            const remainingYears = Math.floor(remainingTime / (1000 * 60 * 60 * 24 * 365));
+            const remainingMonths = Math.floor((remainingTime % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+    
+            return { remainingYears, remainingMonths };
+        }
+    
         function loadMortgageData(mortgageId) {
             if (mortgageId) {
                 fetch(`/get_mortgage_data/${mortgageId}`)
@@ -154,7 +171,7 @@
                             console.error('Error fetching mortgage data:', data.error);
                             return;
                         }
-
+    
                         document.getElementById('mortgage-id').value = mortgageId;
                         document.getElementById('update-date').value = data.update_date || "";  // Ensure update_date is correctly set
                         document.getElementById('principal').value = data.principal;
@@ -164,13 +181,18 @@
                         document.getElementById('payment-override').value = data.payment_override;
                         document.getElementById('balloon-payment').value = data.balloon_payment;
                         document.getElementById('comment').value = data.comment;
-
+    
+                        // Store original establishment date and initial term
+                        document.getElementById('estab-date').value = data.estab_date;
+                        document.getElementById('initial-term-years').value = data.initial_term_years;
+                        document.getElementById('initial-term-months').value = data.initial_term_months;
+    
                         // Update the graph and summary
                         const graphData = data.graph_data.data || [];
                         const graphLayout = data.graph_data.layout || {};
-
+    
                         Plotly.newPlot('graph-div', graphData, graphLayout);
-
+    
                         document.getElementById('monthly-repayment').innerText = data.analysis_summary.monthly_repayment;
                         document.getElementById('fortnightly-repayment').innerText = data.analysis_summary.fortnightly_repayment;
                         document.getElementById('monthly-periods').innerText = data.analysis_summary.monthly_periods;
@@ -183,7 +205,20 @@
                     });
             }
         }
-
+    
+        // Add event listener to update-date input
+        document.getElementById('update-date').addEventListener('change', function() {
+            const estabDate = document.getElementById('estab-date').value;
+            const initialTermYears = parseInt(document.getElementById('initial-term-years').value);
+            const newStartDate = this.value;
+    
+            const { remainingYears, remainingMonths } = calculateRemainingTerm(estabDate, initialTermYears, newStartDate);
+    
+            document.getElementById('term-years').value = remainingYears;
+            document.getElementById('term-months').value = remainingMonths;
+        });
+    
+        // Function to update graph and summary
         function updateGraphAndSummary() {
             const mortgageId = document.getElementById('mortgageSelect').value;
             const updateDate = document.getElementById('update-date').value;
@@ -195,7 +230,7 @@
             const balloonPayment = document.getElementById('balloon-payment').value;
             const comment = document.getElementById('comment').value;
             const extraPaymentType = document.getElementById('payment-override-toggle').checked ? "Monthly" : "Fortnightly";
-        
+
             const requestData = {
                 mortgage_id: mortgageId,
                 update_date: updateDate,
@@ -208,46 +243,47 @@
                 balloon_payment: parseFloat(balloonPayment),
                 comment: comment
             };
-        
-            fetch('/update_graph_and_summary', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error('Error updating graph and summary:', data.error);
-                    return;
-                }
-        
-                const graphData = data.graph_data.data;
-                const graphLayout = data.graph_data.layout;
-                Plotly.newPlot('graph-div', graphData, graphLayout);
-        
-                document.getElementById('monthly-repayment').innerText = data.summary_html.monthly_repayment;
-                document.getElementById('fortnightly-repayment').innerText = data.summary_html.fortnightly_repayment;
-                document.getElementById('monthly-periods').innerText = data.summary_html.monthly_periods;
-                document.getElementById('fortnightly-periods').innerText = data.summary_html.fortnightly_periods;
-                document.getElementById('monthly-total-repayment').innerText = data.summary_html.monthly_total_repayment;
-                document.getElementById('fortnightly-total-repayment').innerText = data.summary_html.fortnightly_total_repayment;
-        
-                document.getElementById('new-monthly-repayment').innerText = data.change_summary.new_monthly_repayment;
-                document.getElementById('new-fortnightly-repayment').innerText = data.change_summary.new_fortnightly_repayment;
-                document.getElementById('change-in-monthly-repayment').innerText = data.change_summary.change_in_monthly_repayment;
-                document.getElementById('change-in-fortnightly-repayment').innerText = data.change_summary.change_in_fortnightly_repayment;
-                document.getElementById('new-monthly-total-repayment').innerText = data.change_summary.new_monthly_total_repayment;
-                document.getElementById('new-fortnightly-total-repayment').innerText = data.change_summary.new_fortnightly_total_repayment;
-                document.getElementById('change-in-monthly-total-repayment').innerText = data.change_summary.change_in_monthly_total_repayment;
-                document.getElementById('change-in-fortnightly-total-repayment').innerText = data.change_summary.change_in_fortnightly_total_repayment;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-        
+
+        fetch('/update_graph_and_summary', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error updating graph and summary:', data.error);
+                return;
+            }
+
+            const graphData = data.graph_data.data;
+            const graphLayout = data.graph_data.layout;
+            Plotly.newPlot('graph-div', graphData, graphLayout);
+
+            document.getElementById('monthly-repayment').innerText = data.summary_html.monthly_repayment;
+            document.getElementById('fortnightly-repayment').innerText = data.summary_html.fortnightly_repayment;
+            document.getElementById('monthly-periods').innerText = data.summary_html.monthly_periods;
+            document.getElementById('fortnightly-periods').innerText = data.summary_html.fortnightly_periods;
+            document.getElementById('monthly-total-repayment').innerText = data.summary_html.monthly_total_repayment;
+            document.getElementById('fortnightly-total-repayment').innerText = data.summary_html.fortnightly_total_repayment;
+
+            document.getElementById('new-monthly-repayment').innerText = data.change_summary.new_monthly_repayment;
+            document.getElementById('new-fortnightly-repayment').innerText = data.change_summary.new_fortnightly_repayment;
+            document.getElementById('change-in-monthly-repayment').innerText = data.change_summary.change_in_monthly_repayment;
+            document.getElementById('change-in-fortnightly-repayment').innerText = data.change_summary.change_in_fortnightly_repayment;
+            document.getElementById('new-monthly-total-repayment').innerText = data.change_summary.new_monthly_total_repayment;
+            document.getElementById('new-fortnightly-total-repayment').innerText = data.change_summary.new_fortnightly_total_repayment;
+            document.getElementById('change-in-monthly-total-repayment').innerText = data.change_summary.change_in_monthly_total_repayment;
+            document.getElementById('change-in-fortnightly-total-repayment').innerText = data.change_summary.change_in_fortnightly_total_repayment;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+        // Function to save changes
         function saveChanges() {
             const extraPaymentType = document.getElementById('payment-override-toggle').checked ? "Monthly" : "Fortnightly";
             const form = document.getElementById('mortgageForm');
@@ -262,7 +298,7 @@
             for (let [key, value] of formData.entries()) {
                 console.log(`${key}: ${value}`);
             }
-        
+    
             // Ensure the values are correctly added to the form
             document.getElementById('mortgage-id').value = document.getElementById('mortgageSelect').value;
             document.getElementById('update-date').value = document.getElementById('update-date').value;
@@ -273,10 +309,9 @@
             document.getElementById('payment-override').value = document.getElementById('payment-override').value;
             document.getElementById('balloon-payment').value = document.getElementById('balloon-payment').value;
             document.getElementById('comment').value = document.getElementById('comment').value;
-        
+    
             form.submit();
-        }
-        
+        }      
     </script>
 </body>
 </html>

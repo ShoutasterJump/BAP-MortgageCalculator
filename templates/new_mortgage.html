@@ -114,10 +114,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const graphData = {{ graph_div.data | tojson | safe }};
-            const graphLayout = {{ graph_div.layout | tojson | safe }};
+            const graphData = {{ graph_div.get('data', []) | tojson | safe }};
+            const graphLayout = {{ graph_div.get('layout', {}) | tojson | safe }};
             
-            if (graphData && graphData.length > 0) {
+            if (graphData.length > 0) {
                 Plotly.newPlot('graph-div', graphData, graphLayout);
             }
         });

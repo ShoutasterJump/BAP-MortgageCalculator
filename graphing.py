@@ -2,11 +2,12 @@ import plotly.graph_objs as go
 import plotly.io as pio
 import json
 from analysis import *
-import datetime
+from datetime import datetime
 
 def mortgage_graph(mortgage, transactions, keyword):
+    print("working")
     try:
-        analysis_data = mortgage_analysis(mortgage, transactions, 'graph')
+        analysis_data = mortgage_analysis(mortgage, transactions, 'graph', datetime.now())
         if keyword == 'Monthly':
             periods = analysis_data['monthly_periods']
             remaining_principal = analysis_data['monthly_remaining_principal']
@@ -22,7 +23,7 @@ def mortgage_graph(mortgage, transactions, keyword):
         print("Interest Paid:", interest_paid)
 
         # Convert periods to datetime objects for better plotting
-        periods = [datetime.datetime.strptime(date, "%Y-%m-%d") for date in periods]
+        periods = [datetime.strptime(date, "%Y-%m-%d") for date in periods]
 
         # Ensure x-axis shows all periods correctly
         fig = go.Figure()
@@ -46,6 +47,7 @@ def mortgage_graph(mortgage, transactions, keyword):
         )
 
         graph_json = pio.to_json(fig)
+        print("Graph JSON:", graph_json)  # Debugging statement to ensure correct JSON format
         return graph_json
     except Exception as e:
         print("Error creating graph:", str(e))  # Debugging statement for errors

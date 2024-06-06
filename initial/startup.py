@@ -77,7 +77,7 @@ def initial():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "transactions" (
             transaction_id SERIAL PRIMARY KEY,
-            mortgage_id INTEGER REFERENCES mortgages(mortgage_id),
+            mortgage_id INTEGER REFERENCES mortgages(mortgage_id) ON DELETE CASCADE,
             current_principal DECIMAL NOT NULL,
             current_interest DECIMAL NOT NULL,
             start_date TIMESTAMP NOT NULL,

@@ -4,6 +4,7 @@ from classes.User import User
 import initial.authkey as key
 from cryptography.fernet import Fernet
 from classes.Mortgage import Mortgage
+from amortization import *
 from analysis import *
 from graphing import *
 from classes.Transaction import Transaction
@@ -53,13 +54,130 @@ def register():
         else:
             return render_template('register.html', message='Registration failed')
     return render_template('register.html')
+
+def fetch_mortgage_data(mortgage_id):
+    mortgage = db.connect("SELECT * FROM mortgages WHERE mortgage_id = %s", (mortgage_id,))
     
-@app.route('/home', methods=['GET'])
+    if not mortgage:
+        print("No mortgage information available")
+        return {}
+
+    mortgage = mortgage[0]
+    mortgage_instance = Mortgage(
+        mortgage[2],  # mortgage_name
+        mortgage[3],  # estab_date
+        float(mortgage[4]),  # initial_interest
+        int(mortgage[5]),  # initial_term
+        float(mortgage[6]),  # initial_principal
+        float(mortgage[7]),  # extra_cost
+        float(mortgage[8])  # deposit
+    )
+    
+    transactions = db.connect("SELECT * FROM transactions WHERE mortgage_id = %s", (mortgage_id,))
+    transaction_instances = []
+    for trans in transactions:
+        transaction_instance = Transaction(
+            float(trans[2]),  # current_principal
+            float(trans[3]),  # current_interest
+            trans[4],  # start_date
+            int(trans[5]),  # remaining_years
+            int(trans[6]),  # remaining_months
+            float(trans[7]),  # extra_payment
+            trans[8],  # extra_payment_type
+            float(trans[9]),  # balloon_payment
+            trans[10]  # comment
+        )
+        transaction_instances.append(transaction_instance)
+    
+    # Perform analysis
+    analysis_summary = mortgage_analysis([mortgage_instance], transaction_instances, "detailed_summary", datetime.now())
+    graph_json = mortgage_graph([mortgage_instance], transaction_instances, "Monthly")
+    graph_div = json.loads(graph_json)
+    amortization_table_html = generate_amortization_table_html(
+        mortgage_analysis([mortgage_instance], transaction_instances, "amortization", datetime.now())["monthly_amortization"]
+    )
+    
+    result = {
+        "estimated_repayments": analysis_summary.get('estimated_repayments', 0),
+        "full_term_to_amortize": analysis_summary.get('full_term_to_amortize', 0),
+        "interest": analysis_summary.get('interest', 0),
+        "estimated_reduced_term_to_amortize": analysis_summary.get('estimated_reduced_term_to_amortize', 0),
+        "principal": analysis_summary.get('principal', 0),
+        "interest_over_term": analysis_summary.get('interest_over_term', 0),
+        "extra": analysis_summary.get('extra', 0),
+        "total_principal_interest": analysis_summary.get('total_principal_interest', 0),
+        "repayment": analysis_summary.get('repayment', 0),
+        "interest_over_reduced_term": analysis_summary.get('interest_over_reduced_term', 0),
+        "payments_over_term": analysis_summary.get('payments_over_term', 0),
+        "interest_saved_over_reduced_term": analysis_summary.get('interest_saved_over_reduced_term', 0),
+        "payments_over_reduced_term": analysis_summary.get('payments_over_reduced_term', 0),
+        "total_principal_interest_over_reduced_term": analysis_summary.get('total_principal_interest_over_reduced_term', 0),
+        "graph_data": graph_div,
+        "amortization_table": amortization_table_html
+    }
+    
+    print(f"fetch_mortgage_data result: {result}")
+    print(f"Result type: {type(result)}")
+
+    return result
+
+@app.route('/home', methods=['GET','POST'])
 def home():
     if 'username' not in session:
         return redirect(url_for('login'))
-    return render_template('index.html')
     
+    user_id = session.get("user_id")
+    mortgages = db.connect("SELECT * FROM mortgages WHERE user_id = %s", (user_id,))
+    
+    if isinstance(mortgages, list):
+        mortgage_buttons = [{'id': mortgage[0], 'name': mortgage[2]} for mortgage in mortgages]
+    else:
+        mortgage_buttons= []
+        
+    # Determine default selection
+    if len(mortgage_buttons) > 1:
+        default_selection = 'Combined'
+    elif len(mortgage_buttons) == 1:
+        default_selection = mortgage_buttons[0]['name']
+    else:
+        default_selection = None
+        
+    if default_selection == 'Combined':
+        initial_data = 0
+    elif default_selection:
+        initial_data = fetch_mortgage_data(mortgage_buttons[0]['id'])
+    else:
+        initial_data = None
+    
+    return render_template('index.html', mortgages=mortgage_buttons, default_selection=default_selection, initial_data=initial_data)
+
+@app.route('/get_data/<string:option>', methods=['GET'])
+def get_data(option):
+    print("In get data handler")
+    user_id = session.get('user_id')
+    print(f"User ID: {user_id}")
+    print(f"Option selected: {option}")
+    
+    if option == 'Combined':
+        data = {"message": "Combined data is currently not supported"}
+    else:
+        # Find the mortgage by name and get its ID
+        mortgage = db.connect("SELECT mortgage_id FROM mortgages WHERE user_id = %s AND mortgage_name = %s", (user_id, option))
+        if mortgage:
+            mortgage_id = mortgage[0][0]
+            print(f"Mortgage selected: {mortgage_id}")
+            data = fetch_mortgage_data(mortgage_id)
+        else:
+            data = {"error": "Mortgage not found"}
+            
+    print(f"Printing data to update with: {data}")
+    print(f"Data type: {type(data)}")
+    
+    response = jsonify(data)
+    print(f"Output: {response.get_json()}")
+    
+    return response
+
 @app.route('/new_mortgage', methods=['GET', 'POST'])
 def new_mortgage():
     error = ""
@@ -73,7 +191,7 @@ def new_mortgage():
         "term": ""
     }
     analysis_summary = None
-    graph_div = {"data": [], "layout": {}}
+    graph_div = {"data": [], "layout": {}}  # Initialize graph_div here
 
     if request.method == 'POST':
         try:
@@ -97,11 +215,12 @@ def new_mortgage():
                 float(mortgage_data["deposit"])
             )
             
-            analysis_summary = mortgage_analysis(mortgage, [], "new_summary")
-            graph_json = mortgage_graph(mortgage, [], "Monthly")
-            graph_div = json.loads(graph_json)
+            analysis_summary = mortgage_analysis([mortgage], [], "new_summary", datetime.now())
+            graph_json = mortgage_graph([mortgage], [], "Monthly")
+            if graph_json:
+                graph_div = json.loads(graph_json)
         except Exception as e:
-            return render_template('new_mortgage.html', error=str(e), mortgage_data=mortgage_data, analysis_result=None, graph_div={"data": [], "layout": {}})
+            error = str(e)
     
     return render_template('new_mortgage.html', error=error, mortgage_data=mortgage_data, analysis_result=analysis_summary, graph_div=graph_div)
 
@@ -154,7 +273,6 @@ def update_mortgage():
         print(str(e))
 
     return render_template('update_mortgage.html', mortgages=mortgages)
-
 
 @app.route('/get_mortgage_data/<int:mortgage_id>', methods=['GET'])
 def get_mortgage_data(mortgage_id):
@@ -218,8 +336,8 @@ def get_mortgage_data(mortgage_id):
             transactions.append(transaction)
 
         # Generate analysis summary and graph data
-        analysis_summary = mortgage_analysis(mortgage, transactions, "new_summary")
-        graph_data = json.loads(mortgage_graph(mortgage, transactions, "Monthly"))
+        analysis_summary = mortgage_analysis([mortgage], transactions, "new_summary", datetime.now())
+        graph_data = json.loads(mortgage_graph([mortgage], transactions, "Monthly"))
 
         data = {
             "principal": mortgage.initialPrincipal,
@@ -230,7 +348,10 @@ def get_mortgage_data(mortgage_id):
             "balloon_payment": 0,
             "comment": "",
             "graph_data": graph_data,
-            "analysis_summary": analysis_summary  # Changed from summary_html to analysis_summary
+            "analysis_summary": analysis_summary,  # Changed from summary_html to analysis_summary
+            "estab_date": mortgage_estab_date,  # Send establishment date
+            "initial_term_years": mortgage.initialTerm,  # Send initial term in years
+            "initial_term_months": 0  # Send initial term in months (if applicable)
         }
 
         print("Response data:", data)  # Log response data
@@ -238,6 +359,7 @@ def get_mortgage_data(mortgage_id):
     except Exception as e:
         print("Error fetching mortgage data:", str(e))
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/update_graph_and_summary', methods=['POST'])
 def update_graph_and_summary():
@@ -265,6 +387,9 @@ def update_graph_and_summary():
         print(mortgage)
         
         transactions = []
+        # Calculate initial analysis summary without any transactions
+        initial_summary = mortgage_analysis([mortgage], [], "new_summary", datetime.now())
+        
         temp_transactions = db.connect("SELECT * FROM transactions WHERE mortgage_id = %s ORDER BY transaction_id ASC", (data['mortgage_id'],))
         print(temp_transactions)
         for i in range(len(temp_transactions)):
@@ -306,13 +431,13 @@ def update_graph_and_summary():
  
         transactions.append(new_transaction)
         print(transactions)
-        analysis_summary = mortgage_analysis(mortgage, transactions, "new_summary")
-        change_summary = mortgage_analysis(mortgage, transactions, "change_summary")
+        change_summary = mortgage_analysis([mortgage], transactions, "change_summary", datetime.now(), initial_summary)
+        print(f"Change Summary: {change_summary}")
         graph_data = mortgage_graph(mortgage, transactions, "Monthly")
 
         response_data = {
             "graph_data": json.loads(graph_data),
-            "summary_html": analysis_summary,
+            "summary_html": initial_summary,
             "change_summary": change_summary
         }
         return jsonify(response_data)
@@ -363,7 +488,7 @@ def save_transaction():
         user_id = session.get('user_id')
         mortgages = db.connect("SELECT mortgage_id, mortgage_name FROM mortgages WHERE user_id = %s", (user_id,))
         return render_template('update_mortgage.html', error=str(e), mortgages=mortgages)
-  
+
 @app.route('/remove_data', methods=['GET', 'POST'])
 def remove_data():
     if request.method == 'GET':
@@ -412,7 +537,8 @@ def delete_transaction(transaction_id):
 def delete_mortgage(mortgage_id):
     try:
         # Delete the mortgage from the database
-        db.connect("DELETE FROM mortgages WHERE mortgage_id = %s", (mortgage_id,))
+        test = db.connect("DELETE FROM mortgages WHERE mortgage_id = %s", (mortgage_id,))
+        print(test)
         return '', 204  # No Content
     except Exception as e:
         print(f"Error deleting mortgage: {e}")
