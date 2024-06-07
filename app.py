@@ -56,45 +56,78 @@ def register():
     return render_template('register.html')
 
 def fetch_mortgage_data(mortgage_id):
-    mortgage = db.connect("SELECT * FROM mortgages WHERE mortgage_id = %s", (mortgage_id,))
-    
     if not mortgage:
         print("No mortgage information available")
         return {}
-
-    mortgage = mortgage[0]
-    mortgage_instance = Mortgage(
-        mortgage[2],  # mortgage_name
-        mortgage[3],  # estab_date
-        float(mortgage[4]),  # initial_interest
-        int(mortgage[5]),  # initial_term
-        float(mortgage[6]),  # initial_principal
-        float(mortgage[7]),  # extra_cost
-        float(mortgage[8])  # deposit
-    )
     
-    transactions = db.connect("SELECT * FROM transactions WHERE mortgage_id = %s", (mortgage_id,))
-    transaction_instances = []
-    for trans in transactions:
-        transaction_instance = Transaction(
-            float(trans[2]),  # current_principal
-            float(trans[3]),  # current_interest
-            trans[4],  # start_date
-            int(trans[5]),  # remaining_years
-            int(trans[6]),  # remaining_months
-            float(trans[7]),  # extra_payment
-            trans[8],  # extra_payment_type
-            float(trans[9]),  # balloon_payment
-            trans[10]  # comment
+    mortgages = []
+    transactions= []
+    if len(mortgage_id) == 1:
+        mortgage = db.connect("SELECT * FROM mortgages WHERE mortgage_id = %s", (mortgage_id,))
+        print(mortgage)
+        mortgage = mortgage[0]
+        mortgage_instance = Mortgage(
+            mortgage[2],  # mortgage_name
+            mortgage[3],  # estab_date
+            float(mortgage[4]),  # initial_interest
+            int(mortgage[5]),  # initial_term
+            float(mortgage[6]),  # initial_principal
+            float(mortgage[7]),  # extra_cost
+            float(mortgage[8])  # deposit
         )
-        transaction_instances.append(transaction_instance)
+        mortgages.append(mortgage_instance)
+        
+        transaction_instances = db.connect("SELECT * FROM transactions WHERE mortgage_id = %s", (mortgage_id,))
+        for trans in transaction_instances:
+            transaction_instance = Transaction(
+                float(trans[2]),  # current_principal
+                float(trans[3]),  # current_interest
+                trans[4],  # start_date
+                int(trans[5]),  # remaining_years
+                int(trans[6]),  # remaining_months
+                float(trans[7]),  # extra_payment
+                trans[8],  # extra_payment_type
+                float(trans[9]),  # balloon_payment
+                trans[10]  # comment
+            )
+            transactions.append(transaction_instance)
+    else:
+        for i in mortgage_id:
+            mortgage = mortgage = db.connect("SELECT * FROM mortgages WHERE mortgage_id = %s", (i,))
+            print(mortgage)
+            mortgage = mortgage[0]
+            mortgage_instance = Mortgage(
+                mortgage[2],  # mortgage_name
+                mortgage[3],  # estab_date
+                float(mortgage[4]),  # initial_interest
+                int(mortgage[5]),  # initial_term
+                float(mortgage[6]),  # initial_principal
+                float(mortgage[7]),  # extra_cost
+                float(mortgage[8])  # deposit
+            )
+            mortgages.append(mortgage_instance)
+            
+            transaction_instances = db.connect("SELECT * FROM transactions WHERE mortgage_id = %s", (i,))
+            for trans in transaction_instances:
+                transaction_instance = Transaction(
+                    float(trans[2]),  # current_principal
+                    float(trans[3]),  # current_interest
+                    trans[4],  # start_date
+                    int(trans[5]),  # remaining_years
+                    int(trans[6]),  # remaining_months
+                    float(trans[7]),  # extra_payment
+                    trans[8],  # extra_payment_type
+                    float(trans[9]),  # balloon_payment
+                    trans[10]  # comment
+                )
+                transactions.append(transaction_instance)
     
     # Perform analysis
-    analysis_summary = mortgage_analysis([mortgage_instance], transaction_instances, "detailed_summary", datetime.now())
-    graph_json = mortgage_graph([mortgage_instance], transaction_instances, "Monthly")
+    analysis_summary = mortgage_analysis(mortgages, transactions, "detailed_summary", datetime.now())
+    graph_json = mortgage_graph(mortgages, transactions, "Monthly")
     graph_div = json.loads(graph_json)
     amortization_table_html = generate_amortization_table_html(
-        mortgage_analysis([mortgage_instance], transaction_instances, "amortization", datetime.now())["monthly_amortization"]
+        mortgage_analysis(mortgages, transactions, "amortization", datetime.now())["monthly_amortization"]
     )
     
     result = {
@@ -143,7 +176,8 @@ def home():
         default_selection = None
         
     if default_selection == 'Combined':
-        initial_data = 0
+        mortgage_query = [mortgage_buttons[mortgage]['id'] for mortgage in mortgage_buttons]
+        initial_data = fetch_mortgage_data(mortgage_query)
     elif default_selection:
         initial_data = fetch_mortgage_data(mortgage_buttons[0]['id'])
     else:
@@ -159,7 +193,12 @@ def get_data(option):
     print(f"Option selected: {option}")
     
     if option == 'Combined':
-        data = {"message": "Combined data is currently not supported"}
+        mortgages = db.connect("SELECT mortgage_id FROM mortgages WHERE user_id = %s", (user_id,))
+        if mortgages:
+            mortgage_ids = [mortgages[mortgage][0] for mortgage in mortgages]
+            data = fetch_mortgage_data(mortgage_ids)
+        else:
+            data = {"error": "Mortgage not found"}
     else:
         # Find the mortgage by name and get its ID
         mortgage = db.connect("SELECT mortgage_id FROM mortgages WHERE user_id = %s AND mortgage_name = %s", (user_id, option))

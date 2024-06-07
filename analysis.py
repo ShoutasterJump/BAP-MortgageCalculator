@@ -1,6 +1,8 @@
 import datetime
 import math
 from dateutil.relativedelta import relativedelta
+from itertools import zip_longest
+from collections import defaultdict
 
 def calculate_remaining_periods(principal, payment, interest_rate_per_period):
     if interest_rate_per_period > 0:
@@ -133,18 +135,80 @@ def mortgage_analysis(mortgages, transactions, response, date, keyword="Monthly"
         fortnightly_interest_rate = mortgage.initialInterest / 100 / 26
         fortnightly_repayment_periods = mortgage.initialTerm * 26
         fortnightly_data.append(calculate_repayment_plan(mortgage, transactions, "Fortnightly", relativedelta(weeks=2)))
-
+    
+    def parse_currency(value):
+        return float(value.replace("$", "").replace(",", ""))
+    
+    def combine_amortization_tables(data):
+        combined_data = defaultdict(lambda: {
+            "Balance": 0.0,
+            "Interest": 0.0,
+            "Principal": 0.0,
+            "Repayment": 0.0,
+            "New Balance": 0.0,
+            "Accumulated Interest": 0.0,
+            "Accumulated Principal Payments": 0.0,
+            "Extra": 0.0
+        })
+        
+        for entry in data:
+            for record in entry["amortization_tables"]:
+                date = record["Date"]
+                combined_data[date]["Balance"] += parse_currency(record["Balance"])
+                combined_data[date]["Interest"] += parse_currency(record["Interest"])
+                combined_data[date]["Principal"] += parse_currency(record["Principal"])
+                combined_data[date]["Repayment"] += parse_currency(record["Repayment"])
+                combined_data[date]["New Balance"] += parse_currency(record["New Balance"])
+                combined_data[date]["Accumulated Interest"] += parse_currency(record["Accumulated Interest"])
+                combined_data[date]["Accumulated Principal Payments"] += parse_currency(record["Accumulated Principal Payments"])
+                combined_data[date]["Extra"] += parse_currency(record["Extra"])
+        
+        combined_table = []
+        for date in sorted(combined_data.keys(), key=lambda d: datetime.datetime.strptime(d, "%Y-%m-%d")):
+            combined_table.append({
+                "Date": date,
+                "Balance": format_currency(combined_data[date]["Balance"]),
+                "Interest": format_currency(combined_data[date]["Interest"]),
+                "Principal": format_currency(combined_data[date]["Principal"]),
+                "Repayment": format_currency(combined_data[date]["Repayment"]),
+                "New Balance": format_currency(combined_data[date]["New Balance"]),
+                "Accumulated Interest": format_currency(combined_data[date]["Accumulated Interest"]),
+                "Accumulated Principal Payments": format_currency(combined_data[date]["Accumulated Principal Payments"]),
+                "Extra": format_currency(combined_data[date]["Extra"])
+            })
+        
+        return combined_table
+    
+    def combine_remaining_periods(data):
+        remaining_periods = []
+        highest_value = float("-inf")
+        
+        for entry in data:
+            periods = entry["remaining_periods"]
+            max_value = max(periods)
+            if max_value > highest_value:
+                highest_value = max_value
+                remaining_periods = periods
+            
+        return remaining_periods
+    
     def combine_data(data):
+        combined_periods_set = set()
+        for entry in data:
+            combined_periods_set.update(entry["periods"])
+        combined_periods = sorted(combined_periods_set)
+        combined_amortization_table = combine_amortization_tables(data)
+        remaining_periods = combine_remaining_periods(data)
         combined = {
-            "repayment_amount": sum([d["repayment_amount"] for d in data]),
-            "total_repayment": sum([d["total_repayment"] for d in data]),
-            "remaining_principal_list": sum([d["remaining_principal_list"] for d in data], []),
-            "interest_paid": sum([d["interest_paid"] for d in data], []),
-            "principal_paid": sum([d["principal_paid"] for d in data], []),
-            "periods": sum([d["periods"] for d in data], []),
-            "amortization_table": sum([d["amortization_table"] for d in data], []),
-            "total_interest_paid": sum([d["total_interest_paid"] for d in data]),
-            "remaining_periods": sum([d["remaining_periods"] for d in data])
+            "repayment_amount": [sum(x) for x in zip_longest(*[d["repayment_amount"] for d in data], fillvalue=0)],
+            "total_repayment": [sum(x) for x in zip_longest(*[d["total_repayment"] for d in data], fillvalue=0)],
+            "remaining_principal_list": [sum(x) for x in zip_longest(*[d["remaining_principal_list"] for d in data], fillvalue=0)],
+            "interest_paid": [sum(x) for x in zip_longest(*[d["interest_paid"] for d in data], fillvalue=0)],
+            "principal_paid": [sum(x) for x in zip_longest(*[d["principal_paid"] for d in data], fillvalue=0)],
+            "periods": combined_periods,
+            "amortization_table": combined_amortization_table,
+            "total_interest_paid": [sum(x) for x in zip_longest(*[d["total_interest_paid"] for d in data], fillvalue=0)],
+            "remaining_periods": remaining_periods
         }
         return combined
 
@@ -229,6 +293,7 @@ def mortgage_analysis(mortgages, transactions, response, date, keyword="Monthly"
     else:
         raise ValueError("Invalid response type. Expected 'new_summary', 'summary', 'change_summary', 'graph', 'amortization', or 'detailed_summary'.")
 
+'''
 def format_periods(periods, frequency="Monthly"):
     if frequency == "Monthly":
         years = periods // 12
@@ -237,3 +302,4 @@ def format_periods(periods, frequency="Monthly"):
         years = periods // 26
         months = (periods % 26) * 2 // 1  # Convert fortnightly periods to months
     return f"{int(years)} years, {int(months)} months"
+'''
