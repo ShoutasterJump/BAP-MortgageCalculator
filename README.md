@@ -22,7 +22,7 @@ Before you begin, ensure you have the follwing installed:
 1. Download the Repository:
    Download the ZIP file from the repository and extract it to your desired location.
 2. Navigate to the Project Directory:
-   ''' sh
+   ''' bash
    cd path/to/mortgage-calculator
    '''
 3. Create a Virtual Environment:
