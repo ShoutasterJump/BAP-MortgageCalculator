@@ -12,7 +12,53 @@ The Mortgage Calculator aims to provide ways to store mortgage data and get anal
  - User Authentication: Secure login and management of user accounts.
 
 ## Installation
-Note: The installation process will be completed later.
+
+### Prerequisites
+Before you begin, ensure you have the follwing installed:
+ - Python 3.8 or higher
+ - PostgreSQL
+
+### Environment Setup
+1. Download the Repository:
+   Download the ZIP file from the repository and extract it to your desired location.
+2. Navigate to the Project Directory:
+   '''
+   cd path/to/mortgage-calculator
+   '''
+3. Create a Virtual Environment:
+   '''
+   python -m venv venv
+   ven\Scripts\activate
+   '''
+4. Install Dependencies:
+   '''
+   pip install -r requirements.txt
+   '''
+
+### Database Configuration
+1. Install PostgresSQL:
+ - Follw the instructions on the [official PostgresSQL website](https://www.postgresql.org/download/) to install PostgresSQL on your machine.
+2. Configure Database Connection:
+ - Update the database connection settings in the 'dbhandler.py' and 'initial/startup.py'.
+
+'''
+conn = psycopg2.connect(
+            dbname="MortgageCalculator",
+            user="postgres",
+            password="postgres",
+            host="localhost",
+            port="5432"
+        )
+'''
+
+### Running the Application
+Start the apllcation by running this in the directory the project is located in. This will also setup the database on first run.
+'''
+flask run
+'''
+
+### Accessing the Application
+Open your web browser and go to 'http://127.0.0.1:5000' to see the application in action.
 
 ## Usage
 1. Create an Account:
