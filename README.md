@@ -3,7 +3,7 @@
 ## Description
 The Mortgage Calculator aims to provide ways to store mortgage data and get analysis for these mortgages. With built-in database connections, support for user authentication, and multi-mortgage support, this tool offers a more robust solution compared to other mortgage calculators. It allows users to analyze, graph, and amortize mortgages, with the ability to edit mortgages at set points in time.
 
-##Features
+## Features
  - Analysis and Graphing: Comprehensive analysis and visualization of mortgage data.
  - Amortization: Detailed amortization schedules for each mortgage.
  - Editable Mortgages: Ability to edit mortgage details at specific points in time.
@@ -11,10 +11,10 @@ The Mortgage Calculator aims to provide ways to store mortgage data and get anal
  - Database Integration: Secure storage of mortgage data with built-in database connections.
  - User Authentication: Secure login and management of user accounts.
 
-##Installation
+## Installation
 Note: The installation process will be completed later.
 
-##Usage
+## Usage
 1. Create an Account:
  - Register for an account to securely store and manage your mortgage data.
 2. Add a Mortgage:
