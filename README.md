@@ -22,16 +22,16 @@ Before you begin, ensure you have the follwing installed:
 1. Download the Repository:
    Download the ZIP file from the repository and extract it to your desired location.
 2. Navigate to the Project Directory:
-   '''
+   ''' sh
    cd path/to/mortgage-calculator
    '''
 3. Create a Virtual Environment:
-   '''
+   ''' sh
    python -m venv venv
    ven\Scripts\activate
    '''
 4. Install Dependencies:
-   '''
+   ''' sh
    pip install -r requirements.txt
    '''
 
@@ -41,7 +41,7 @@ Before you begin, ensure you have the follwing installed:
 2. Configure Database Connection:
  - Update the database connection settings in the 'dbhandler.py' and 'initial/startup.py'.
 
-'''
+''' python
 conn = psycopg2.connect(
             dbname="MortgageCalculator",
             user="postgres",
@@ -53,7 +53,7 @@ conn = psycopg2.connect(
 
 ### Running the Application
 Start the apllcation by running this in the directory the project is located in. This will also setup the database on first run.
-'''
+''' sh
 flask run
 '''
 
